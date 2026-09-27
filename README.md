@@ -700,54 +700,6 @@ The selected timestep controls:
 * Violations
 * Historical Analysis
 
-### Synchronization rule
-
-> **One selected timestep → one consistent application state.**
-
-If the user selects `00:08`, every synchronized view should show the `00:08` simulation state.
-
-The frontend should use cached simulation history rather than recalculating Pandapower on every slider movement.
-
----
-
-# ☀️ Solar Generation
-
-Solar data is supplied as a time series.
-
-Solar represents **distributed renewable generation** in the modeled network.
-
-Solar generation can influence:
-
-* Voltage
-* Power flow
-* Line loading
-* Transformer loading
-* Grid import
-* Power losses
-* Constraint conditions
-
-For example, increased solar generation can change how much power is supplied locally versus imported from upstream parts of the network.
-
----
-
-# 🏠 Load Demand
-
-Load represents electricity consumption.
-
-Load demand directly affects the electrical balance of the network.
-
-Changes in load can influence:
-
-* Power flow
-* Voltage
-* Line loading
-* Transformer loading
-* Grid import
-* Electrical losses
-
-Because load changes throughout the day, time-series load data allows GridTwin to represent changing operating conditions rather than one fixed demand value.
-
----
 
 # 🌦️ Weather
 
@@ -1421,19 +1373,6 @@ Review:
 * Battery state
 * Violations
 * Historical information
-
-### 9. Explore scenarios
-
-Use What-If analysis to test supported actions such as:
-
-* Battery charging
-* Battery discharging
-* Solar curtailment
-
-### 10. Compare results
-
-Compare scenario results with the baseline.
-
 ---
 
 # 🔌 API Overview
@@ -1459,80 +1398,6 @@ A typical conceptual API surface may include areas such as:
 
 ---
 
-# 🧪 Validation / Testing
-
-GridTwin should validate the relationship between input data, simulation results, and frontend visualization.
-
-Important validation areas include:
-
-* Solar data parsing
-* Load data parsing
-* Timestamp alignment
-* 1440-step daily simulations
-* Pandapower execution
-* Electrical result generation
-* Constraint detection
-* Loss calculations
-* Battery state handling
-* Historical state retrieval
-* Timeline synchronization
-* Scenario isolation
-* Baseline preservation
-
-A particularly important validation rule is:
-
-> Selecting a historical timestep must update every synchronized visualization to the same timestep.
-
----
-
-# 🖼️ Screenshots
-
-Project screenshots can be stored under:
-
-```text
-docs/screenshots/
-```
-
-Suggested screenshots include:
-
-* 3D Digital Twin
-* Component Inspector
-* Timeline
-* Analytics Dashboard
-* Battery Analytics
-* Power Loss
-* Violation History
-* Baseline vs DER
-* What-If Analysis
-
-Example:
-
-```markdown
-![GridTwin Digital Twin](docs/screenshots/digital-twin.png)
-```
-
-Only include screenshots that actually exist in the repository.
-
----
-
-# 🎥 Demo
-
-The project demo can be displayed from:
-
-```text
-docs/gridtwin-demo.gif
-```
-
-Example:
-
-```html
-<img src="docs/gridtwin-demo.gif" alt="GridTwin Demo" width="100%">
-```
-
-The demo should show the actual implemented application rather than simulated screenshots or fabricated functionality.
-
----
-
 # 📌 Current Scope
 
 The current GridTwin concept includes:
@@ -1553,29 +1418,6 @@ The current GridTwin concept includes:
 * Baseline vs DER comparison
 
 The exact availability of each feature depends on the current implementation in the repository.
-
----
-
-# ⚠️ Limitations
-
-GridTwin is a simulation and visualization project.
-
-It should **not** be represented as a utility-grade operational control system.
-
-Real-world deployment would require, at minimum:
-
-* Validated grid models
-* Real telemetry
-* Cybersecurity controls
-* Engineering validation
-* Operational testing
-* Applicable regulatory requirements
-
-Simulation results are only meaningful within the assumptions, input data, network model, and configured limits used by the system.
-
-Weather data also provides environmental context; it should not automatically be interpreted as a validated physical model of renewable generation unless the relevant generation model and calibration are implemented.
-
----
 
 # 🛣️ Future Roadmap
 
@@ -1728,113 +1570,6 @@ flowchart LR
     PRED --> REVIEW
     ACTION --> REVIEW
 ```
-
-Possible future capabilities include:
-
-* Predictive constraint detection
-* Battery optimization
-* Solar curtailment recommendations
-* Voltage optimization
-* Loss minimization
-* Scenario ranking based on configured engineering objectives
-
-These should remain clearly separated from the currently implemented simulation workflow.
-
----
-
-# 🤝 Contributing
-
-Contributions are welcome.
-
-A typical contribution workflow is:
-
-```text
-Fork Repository
-      ↓
-Create Feature Branch
-      ↓
-Implement Change
-      ↓
-Run Tests / Validation
-      ↓
-Review Changes
-      ↓
-Open Pull Request
-```
-
-When contributing:
-
-* Keep electrical terminology accurate.
-* Keep simulation calculations separate from presentation logic.
-* Avoid introducing frontend-generated electrical values.
-* Preserve the shared `selectedTimestepIndex` synchronization model.
-* Keep baseline scenarios immutable during What-If analysis.
-* Document new APIs or data formats.
-* Do not commit secrets.
-* Clearly distinguish implemented functionality from roadmap concepts.
-
----
-
-# 🔐 Security
-
-## Never Commit API Keys
-
-Store secrets in:
-
-```text
-backend/.env
-```
-
-Example:
-
-```env
-WEATHER_API_KEY=your_api_key_here
-```
-
-Do not commit real credentials to GitHub.
-
----
-
-## Recommended `.gitignore`
-
-```gitignore
-.env
-.env.*
-!.env.example
-
-node_modules/
-.venv/
-
-__pycache__/
-*.pyc
-
-dist/
-build/
-```
-
-If an environment template is useful for contributors, provide a safe example file such as:
-
-```text
-.env.example
-```
-
-without real credentials.
-
----
-
-# 📦 Environment Configuration
-
-A safe example could contain:
-
-```env
-WEATHER_API_KEY=your_api_key_here
-```
-
-Actual environment variables should follow the requirements of the current implementation.
-
-Secrets should remain local and should never be embedded directly into frontend source code or committed to version control.
-
----
 
 # 🧠 Electrical Concepts at a Glance
 
@@ -2076,72 +1811,6 @@ The 3D digital twin, timeline, component inspection, and analytics.
 This separation helps keep the visualization understandable while maintaining a clear relationship with the electrical simulation.
 
 ---
-
-# 🛡️ Engineering Safety Boundary
-
-GridTwin should be considered a **simulation and decision-support prototype** unless and until additional validation has been completed.
-
-A real operational deployment would require:
-
-* Validated electrical models
-* Accurate network topology
-* Verified equipment parameters
-* Real telemetry
-* Data-quality controls
-* Cybersecurity architecture
-* Failure handling
-* Engineering validation
-* Operational testing
-* Regulatory compliance
-* Appropriate human oversight
-
-A visually accurate digital twin does not by itself establish operational accuracy.
-
----
-
-# 🧭 Project Status
-
-GridTwin combines an electrical simulation engine with an interactive 3D visualization workflow.
-
-The project focuses on making distribution-grid behavior easier to inspect across time by connecting:
-
-```text
-Simulation
-     +
-Time Series
-     +
-Digital Twin
-     +
-Analytics
-     +
-Scenario Analysis
-```
-
-Feature status should always be evaluated against the current source code rather than this README alone.
-
-
-# 🌟 Final Project Vision
-
-GridTwin aims to bridge the gap between **electrical power-flow simulation** and **intuitive grid visualization**.
-
-The project brings together:
-
-* Electrical modeling
-* Time-series simulation
-* Renewable generation
-* Energy storage
-* Constraint detection
-* Power-loss analysis
-* Scenario analysis
-* Interactive 3D visualization
-
-The long-term direction is to make complex electrical behavior easier to inspect without separating the visual experience from the underlying simulation.
-
-## See the Grid.
-
-## Understand the Grid.
-
-## Simulate the Grid.
 
 
 
