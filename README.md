@@ -160,34 +160,6 @@ flowchart TB
     UI --> INSPECTOR
 ```
 
-# 💡 The Idea
-
-GridTwin follows a simple concept:
-
-```text
-Electrical Data
-      ↓
-Data Processing
-      ↓
-Power-Flow Simulation
-      ↓
-Electrical Results
-      ↓
-Constraint + Loss Analysis
-      ↓
-Simulation History
-      ↓
-Interactive 3D Digital Twin
-      ↓
-Timeline + Analytics
-```
-
-The frontend should not invent electrical results.
-
-Electrical values such as power flow, loading, voltage, and losses should originate from the simulation/backend results and then be presented visually.
-
----
-
 # 🔎 GridTwin at a Glance
 
 | Capability           | Purpose                                           |
@@ -1208,36 +1180,107 @@ The exact accepted schema depends on the current implementation.
 
 # 📁 Project Structure
 
-The following is an **example structure** based on the intended architecture. Exact filenames and folders may differ depending on the current implementation.
+## 🏗️ GridTwin System Architecture
 
-```text
-gridtwin/
-├── backend/
-│   ├── app/
-│   │   ├── main.py
-│   │   ├── simulation/
-│   │   └── services/
-│   ├── requirements.txt
-│   └── .env
-│
-├── client/
-│   ├── public/
-│   │   └── models/
-│   └── src/
-│       ├── components/
-│       │   └── digital-twin/
-│       ├── lib/
-│       └── pages/
-│
-├── docs/
-│   ├── gridtwin-demo.gif
-│   └── screenshots/
-│
-├── solar.csv
-├── load.csv
-├── README.md
-└── package.json
+```mermaid
+flowchart TD
+
+subgraph group_inputs["Inputs & API"]
+  node_api_client["API Client<br/>api.ts"]
+  node_api["FastAPI Endpoints<br/>main.py"]
+  node_csv_service["CSV Validation<br/>csv_service.py"]
+  node_weather["Weather Data<br/>weather.py"]
+end
+
+subgraph group_simulation["Grid Simulation"]
+  node_timestep["Timestep Runner<br/>timestep.py"]
+  node_powerflow["Power Flow<br/>powerflow.py"]
+  node_network["Grid Network<br/>network.py"]
+  node_battery["Battery Dispatch<br/>battery.py"]
+  node_results["Simulation Results<br/>results.py"]
+  node_history["Timestep History<br/>main.py"]
+end
+
+subgraph group_analysis["Analysis"]
+  node_violations["Constraint Detection<br/>violations.py"]
+  node_losses["Power-Loss Analysis<br/>main.py"]
+  node_comparison["Baseline Comparison<br/>comparison.py"]
+  node_whatif["What-If Analysis<br/>whatif.py"]
+end
+
+subgraph group_frontend["Interactive Views"]
+  node_home["GridTwin Dashboard<br/>Home.tsx"]
+  node_analytics["History Analytics<br/>Home.tsx"]
+  node_twin["3D Digital Twin<br/>DigitalTwin.tsx"]
+end
+
+node_user(("Grid Operator"))
+node_csv["Solar / Load CSV"]
+node_weather_service(("Weather Source"))
+
+node_user -->|"uses"| node_home
+node_csv -->|"uploads"| node_home
+
+node_home -->|"requests"| node_api_client
+node_api_client -->|"calls"| node_api
+
+node_api -->|"validates & aligns"| node_csv_service
+node_api -.->|"fetches context"| node_weather
+node_weather_service -.->|"provides data"| node_weather
+
+node_api -->|"creates grid"| node_network
+node_api -->|"runs timesteps"| node_timestep
+
+node_timestep -->|"calculates flow"| node_powerflow
+node_timestep -->|"dispatches storage"| node_battery
+node_timestep -->|"builds results"| node_results
+
+node_api -->|"stores & selects"| node_history
+node_api -->|"detects limits"| node_violations
+node_api -->|"serves loss analytics"| node_losses
+node_api -->|"runs comparison"| node_comparison
+node_api -.->|"supports scenarios"| node_whatif
+
+node_api -->|"returns results"| node_home
+
+node_home -->|"renders network"| node_twin
+node_home -->|"presents history"| node_analytics
+node_history -->|"supplies history"| node_analytics
+node_results -->|"records timesteps"| node_history
+
+classDef toneNeutral fill:#f8fafc,stroke:#334155,stroke-width:1.5px,color:#0f172a
+classDef toneBlue fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#172554
+classDef toneAmber fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f
+classDef toneMint fill:#dcfce7,stroke:#16a34a,stroke-width:1.5px,color:#14532d
+classDef toneRose fill:#ffe4e6,stroke:#e11d48,stroke-width:1.5px,color:#881337
+classDef toneIndigo fill:#e0e7ff,stroke:#4f46e5,stroke-width:1.5px,color:#312e81
+
+class node_api_client,node_api,node_csv_service,node_weather toneBlue
+class node_timestep,node_powerflow,node_network,node_battery,node_results,node_history toneAmber
+class node_violations,node_losses,node_comparison,node_whatif toneMint
+class node_home,node_analytics,node_twin toneRose
+class node_user,node_csv,node_weather_service toneIndigo
 ```
+
+### 🔗 Code References
+
+| Component | Source |
+|---|---|
+| API Client | [`client/src/lib/api.ts`](client/src/lib/api.ts) |
+| FastAPI | [`backend/app/main.py`](backend/app/main.py) |
+| CSV Validation | [`backend/app/services/csv_service.py`](backend/app/services/csv_service.py) |
+| Weather | [`backend/app/services/weather.py`](backend/app/services/weather.py) |
+| Timestep Runner | [`backend/app/simulation/timestep.py`](backend/app/simulation/timestep.py) |
+| Power Flow | [`backend/app/simulation/powerflow.py`](backend/app/simulation/powerflow.py) |
+| Grid Network | [`backend/app/simulation/network.py`](backend/app/simulation/network.py) |
+| Battery Dispatch | [`backend/app/simulation/battery.py`](backend/app/simulation/battery.py) |
+| Simulation Results | [`backend/app/simulation/results.py`](backend/app/simulation/results.py) |
+| Constraint Detection | [`backend/app/simulation/violations.py`](backend/app/simulation/violations.py) |
+| Baseline Comparison | [`backend/app/simulation/comparison.py`](backend/app/simulation/comparison.py) |
+| What-If Analysis | [`backend/app/simulation/whatif.py`](backend/app/simulation/whatif.py) |
+| Dashboard | [`client/src/pages/Home.tsx`](client/src/pages/Home.tsx) |
+| 3D Digital Twin | [`client/src/components/digital-twin/DigitalTwin.tsx`](client/src/components/digital-twin/DigitalTwin.tsx) |
+
 
 ---
 
