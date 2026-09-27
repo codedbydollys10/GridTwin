@@ -55,8 +55,6 @@ It combines:
 - 📉 Power-loss analysis
 - 🔄 Animated power-flow visualization
 
-Instead of looking at a large table of electrical values, GridTwin turns the network into an **interactive visual system** where users can see how the grid behaves over time.
-
 ---
 
 # 💡 The Idea
@@ -520,23 +518,6 @@ This represents a future architecture for predictive constraint detection and de
 
 ---
 
-# ⚙️ How the System Works
-
-At a high level, GridTwin follows these stages:
-
-1. Load solar and load time-series data.
-2. Obtain weather information when configured.
-3. Process the input data.
-4. Build or populate the electrical network model.
-5. Run power-flow calculations using Pandapower.
-6. Store calculated simulation results.
-7. Check configured electrical constraints.
-8. Calculate power-flow and loss information.
-9. Expose the results to the frontend.
-10. Synchronize the visual state with `selectedTimestepIndex`.
-11. Display the selected state through the 3D digital twin and analytics.
-12. Allow scenario analysis without modifying the baseline network.
-
 ---
 
 # 🌐 3D Digital Twin
@@ -558,20 +539,6 @@ The visual environment can contain concepts such as:
 
 The 3D assets can be represented using **GLB/GLTF models**.
 
-### Interaction
-
-Users can:
-
-* Rotate the scene
-* Pan the scene
-* Zoom
-* Select components
-* Inspect components
-* View component details
-* Focus or zoom into selected components
-
-The purpose of the 3D environment is not merely visual decoration. It provides a spatial interface for understanding where electrical components and conditions occur within the modeled network.
-
 ---
 
 # 🔋 Animated Power Flow
@@ -591,8 +558,6 @@ The visual state should be derived from calculated electrical values and configu
 These colors are therefore not arbitrary decoration.
 
 For example, a line's visual state can be determined from its calculated loading percentage compared with the configured operating limi
-
-
 # 🌦️ Weather
 
 GridTwin can retrieve live weather information through a weather API.
@@ -607,38 +572,19 @@ Example fields include:
 | `humidity_percent`      | Relative humidity         |
 | `wind_speed_m_s`        | Wind speed                |
 
-Example response:
-
-```json
-{
-  "status": "LIVE WEATHER",
-  "temperature_c": 29,
-  "cloud_cover_percent": 7,
-  "solar_irradiance_w_m2": 930,
-  "humidity_percent": 74,
-  "wind_speed_m_s": 4.63
-}
-```
 
 Weather provides environmental context and can potentially influence renewable-generation scenarios.
-
 ## Weather API Configuration
-
 Create:
-
 ```text
 backend/.env
 ```
-
 Add:
-
 ```env
 WEATHER_API_KEY=your_api_key_here
 ```
-
 > [!WARNING]
 > Never commit API keys or other secrets to GitHub.
-
 ---
 
 # 🔋 BESS — Battery Energy Storage System
@@ -655,48 +601,17 @@ GridTwin can represent three basic battery states:
 | `IDLE`      | Battery is not actively charging or discharging |
 | `DISCHARGE` | Battery is supplying stored energy              |
 
-## SOC — State of Charge
-
-`SOC` means **State of Charge**.
-
-For example:
-
-```text
-SOC = 80%
-```
-
-means approximately 80% of the battery's usable energy capacity is stored.
-
-GridTwin tracks concepts such as:
-
-* SOC
-* Battery power
-* Charge/discharge state
-* SOC history
-* Battery behavior during scenarios
-
-Battery behavior can therefore be inspected alongside the electrical state of the network.
-
 ---
-
 # ⚡ Electrical Bus
-
 A **bus** is an electrical connection point in the network model.
-
 It is where components connect and where electrical quantities such as voltage can be evaluated.
-
 In simple terms:
-
 > A bus is a point in the electrical model where different parts of the network meet.
-
 A bus is primarily an **electrical modeling concept** and does not necessarily represent a physical object.
 
 ---
-
 # ─ Distribution Lines
-
 A distribution line connects electrical buses and carries power through the network.
-
 GridTwin can track:
 
 | Line Metric        | Meaning                                                                |
@@ -707,7 +622,6 @@ GridTwin can track:
 | Operating state    | Current calculated condition                                           |
 
 Example feeder identifiers may include:
-
 ```text
 line_01
 line_02
@@ -715,15 +629,11 @@ line_03
 line_04
 line_05
 ```
-
 The exact number and naming of lines depends on the configured network model.
 
 ---
-
 # 🔌 Transformer
-
 A transformer changes electrical voltage levels between parts of the network.
-
 This is important because distribution networks operate across different voltage levels.
 
 GridTwin can track:
@@ -733,9 +643,7 @@ GridTwin can track:
 * Operating state
 
 Transformer constraints can therefore be detected alongside line and voltage constraints.
-
 ---
-
 # 🚨 Constraint / Violation Detection
 
 GridTwin detects electrical constraints by comparing calculated values against configured limits.
@@ -747,7 +655,6 @@ Actual Value
      vs
 Configured Limit
 ```
-
 Possible states are:
 
 ```text
@@ -755,7 +662,6 @@ NORMAL
 WARNING
 CRITICAL
 ```
-
 Examples include:
 
 * Low voltage
@@ -775,27 +681,6 @@ A violation record can contain:
 | Severity         | Normal, warning, or critical classification |
 
 The important principle is that violation status should be derived from **actual simulation results and configured limits**, not arbitrary frontend values.
-
----
-
-# 📉 Power Loss Analytics
-
-GridTwin calculates electrical losses from simulation results.
-
-Losses can be inspected for individual feeder lines, for example:
-
-```text
-line_01
-line_02
-line_03
-line_04
-line_05
-```
-
-Power-loss values should come from the electrical simulation rather than randomly generated frontend values.
-
-Where the implementation provides the required time-series quantities, cumulative energy-loss analysis can also be derived by aggregating losses over the simulation period.
-
 ---
 
 # 📊 Analytics Dashboard
@@ -813,9 +698,7 @@ GridTwin's analytics layer can expose several complementary views.
 | Baseline vs DER     | Compare original and distributed-energy-resource scenarios |
 
 All historical analytics should remain synchronized with `selectedTimestepIndex` where the metric represents a single simulation timestep.
-
 ---
-
 # 📈 Voltage Profile
 
 Voltage profile analysis shows how calculated voltage varies across the modeled network.
@@ -909,39 +792,6 @@ flowchart LR
 The comparison should use calculated simulation values rather than presentation-only values.
 
 ---
-
-# 🧪 What-If Analysis
-
-GridTwin supports scenario analysis.
-
-Example actions include:
-
-* Battery charge
-* Battery discharge
-* Solar curtailment
-
-The baseline network should remain unchanged.
-
-The conceptual process is:
-
-```text
-Baseline
-    ↓
-Create Scenario Copy
-    ↓
-Apply Action
-    ↓
-Run Pandapower
-    ↓
-Calculate Results
-    ↓
-Check Constraints
-    ↓
-Compare With Baseline
-```
-
-This allows users to investigate possible operating changes without modifying the original baseline state.
-
 ### What-If Architecture
 
 ```mermaid
@@ -970,7 +820,6 @@ flowchart LR
     CHECK --> COMP
     B --> COMP
 ```
-
 ---
 
 # 📥 Input Data
@@ -990,29 +839,6 @@ The two datasets represent different sides of the electrical balance:
 | `load.csv`  | Consumption |
 
 Together, they influence the electrical conditions calculated by the simulation.
-
----
-
-# 📄 CSV Format
-
-An example time-series format is:
-
-```csv
-timestamp,power_kw
-00:00,12.4
-00:01,12.7
-00:02,13.1
-...
-23:59,8.6
-```
-
-A 24-hour dataset with one-minute intervals contains:
-
-```text
-24 × 60 = 1440 timesteps
-```
-
-The exact accepted schema depends on the current implementation.
 
 ---
 
@@ -1707,7 +1533,6 @@ flowchart LR
     V --> F
     LS --> F
 ```
-
 ---
 
 ## Data Flow
@@ -1792,27 +1617,6 @@ flowchart TB
     T --> H
     T --> HA
 ```
-
-### Why this matters
-
-If the user selects `00:08`, every part of the application should represent the **00:08 state**.
-
-The following should therefore remain synchronized:
-
-* 3D digital twin
-* Component sidebar
-* KPIs
-* Battery analytics
-* Power-loss analytics
-* Voltage profile
-* Violation history
-* Historical analysis
-
-The application should not mix a selected historical state with the latest simulation state.
-
-Simulation history should be cached so moving the timeline can retrieve an already calculated state instead of rerunning Pandapower for every slider movement.
-
----
 
 ## Constraint Detection
 
@@ -2090,117 +1894,6 @@ GridTwin can represent three basic battery states:
 | `IDLE`      | Battery is not actively charging or discharging |
 | `DISCHARGE` | Battery is supplying stored energy              |
 
-## SOC — State of Charge
-
-`SOC` means **State of Charge**.
-
-For example:
-
-```text
-SOC = 80%
-```
-
-means approximately 80% of the battery's usable energy capacity is stored.
-
-GridTwin tracks concepts such as:
-
-* SOC
-* Battery power
-* Charge/discharge state
-* SOC history
-* Battery behavior during scenarios
-
-Battery behavior can therefore be inspected alongside the electrical state of the network.
-
----
-
-# ⚡ Electrical Bus
-
-A **bus** is an electrical connection point in the network model.
-
-It is where components connect and where electrical quantities such as voltage can be evaluated.
-
-In simple terms:
-
-> A bus is a point in the electrical model where different parts of the network meet.
-
-A bus is primarily an **electrical modeling concept** and does not necessarily represent a physical object.
-
----
-
-#  Distribution Lines
-
-A distribution line connects electrical buses and carries power through the network.
-
-GridTwin can track:
-
-| Line Metric        | Meaning                                                                |
-| ------------------ | ---------------------------------------------------------------------- |
-| Loading percentage | How heavily the line is being used relative to its configured capacity |
-| Power flow         | Electrical power moving through the line                               |
-| Losses             | Electrical energy/power lost in the line                               |
-| Operating state    | Current calculated condition                                           |
-
----
-
-# 🔌 Transformer
-
-A transformer changes electrical voltage levels between parts of the network.
-
-This is important because distribution networks operate across different voltage levels.
-
-GridTwin can track:
-
-* Transformer loading
-* Power flow
-* Operating state
-
-Transformer constraints can therefore be detected alongside line and voltage constraints.
-
----
-
-# 🚨 Constraint / Violation Detection
-
-GridTwin detects electrical constraints by comparing calculated values against configured limits.
-
-Conceptually:
-
-```text
-Actual Value
-     vs
-Configured Limit
-```
-
-Possible states are:
-
-```text
-NORMAL
-WARNING
-CRITICAL
-```
-
-Examples include:
-
-* Low voltage
-* High line loading
-* Transformer overload
-
-A violation record can contain:
-
-| Field            | Description                                 |
-| ---------------- | ------------------------------------------- |
-| Timestamp        | Time at which the condition occurred        |
-| Component        | Affected component                          |
-| Component ID     | Identifier of the affected component        |
-| Violation type   | Type of electrical constraint               |
-| Actual value     | Calculated value                            |
-| Configured limit | Applicable threshold                        |
-| Severity         | Normal, warning, or critical classification |
-
-The important principle is that violation status should be derived from **actual simulation results and configured limits**, not arbitrary frontend values.
-
----
-
 # 📊 Analytics Dashboard
 
 GridTwin's analytics layer can expose several complementary views.
@@ -2217,7 +1910,6 @@ GridTwin's analytics layer can expose several complementary views.
 
 All historical analytics should remain synchronized with `selectedTimestepIndex` where the metric represents a single simulation timestep.
 
----
 ---
 ### Comparison Flow
 
@@ -2264,158 +1956,6 @@ The comparison should use calculated simulation values rather than presentation-
 
 ---
 
-# 🧪 What-If Analysis
-
-GridTwin supports scenario analysis.
-
-Example actions include:
-
-* Battery charge
-* Battery discharge
-* Solar curtailment
-
-The baseline network should remain unchanged.
-
-The conceptual process is:
-
-```text
-Baseline
-    ↓
-Create Scenario Copy
-    ↓
-Apply Action
-    ↓
-Run Pandapower
-    ↓
-Calculate Results
-    ↓
-Check Constraints
-    ↓
-Compare With Baseline
-```
-
-This allows users to investigate possible operating changes without modifying the original baseline state.
-
-### What-If Architecture
-
-```mermaid
-flowchart LR
-    subgraph BASE["Baseline"]
-        B["Baseline Grid"]
-    end
-
-    subgraph SCENARIO["Scenario"]
-        COPY["Scenario Copy"]
-        ACTION["Apply Action"]
-        RUN["Run Pandapower"]
-    end
-
-    subgraph RESULT["Analysis"]
-        RESULTS["Scenario Results"]
-        CHECK["Constraint Check"]
-        COMP["Baseline vs Scenario"]
-    end
-
-    B --> COPY
-    COPY --> ACTION
-    ACTION --> RUN
-    RUN --> RESULTS
-    RESULTS --> CHECK
-    CHECK --> COMP
-    B --> COMP
-```
-
----
-
-# 📥 Input Data
-
-GridTwin currently uses:
-
-```text
-solar.csv
-load.csv
-```
-
-The two datasets represent different sides of the electrical balance:
-
-| Dataset     | Represents  |
-| ----------- | ----------- |
-| `solar.csv` | Generation  |
-| `load.csv`  | Consumption |
-
-Together, they influence the electrical conditions calculated by the simulation.
-
----
-
-# 🛠️ Technology Stack
-
-| Technology        | Role                                           |
-| ----------------- | ---------------------------------------------- |
-| React             | Frontend application                           |
-| TypeScript        | Type-safe frontend development                 |
-| Three.js          | 3D rendering                                   |
-| React Three Fiber | React integration for Three.js                 |
-| GLB / GLTF        | 3D assets                                      |
-| FastAPI           | Python backend/API layer                       |
-| Python            | Simulation backend                             |
-| Pandapower        | Electrical network and power-flow calculations |
-| Pandas            | Time-series/data processing                    |
-| NumPy             | Numerical computation                          |
-| Weather API       | Environmental/weather information              |
-| Solar Data        | Renewable-generation input                     |
-| Load Data         | Electricity-consumption input                  |
-
----
-
-# 📌 Current Scope
-
-The current GridTwin concept includes:
-
-* Interactive 3D grid visualization
-* Electrical power-flow simulation
-* Pandapower integration
-* Solar time-series input
-* Load time-series input
-* BESS representation
-* Weather context
-* Minute-level simulation
-* Shared selected timestep
-* Constraint detection
-* Power-loss analysis
-* Historical analysis
-* What-If analysis
-* Baseline vs DER comparison
-
-The exact availability of each feature depends on the current implementation in the repository.
-
-# 🛣️ Future Roadmap
-
-| Stage        | Capabilities                                                                                                                                             |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **CURRENT**  | 3D Twin, Pandapower, Solar, Load, BESS, Weather, Time-Series Simulation, Constraint Detection, Power Loss, Historical Analysis, What-If, Baseline vs DER |
-| **ADVANCED** | Battery optimization, Solar curtailment optimization, Voltage optimization, Loss minimization                                                            |
-| **FUTURE**   | SCADA, IoT, Smart Meters, Real-Time Data, Machine Learning, Predictive Constraint Detection                                                              |
-
----
-
-## CURRENT
-
-The current scope includes the core simulation and visualization workflow:
-
-* 3D Digital Twin
-* Pandapower
-* Solar
-* Load
-* BESS
-* Weather
-* Time-Series Simulation
-* Constraint Detection
-* Power Loss
-* Historical Analysis
-* What-If Analysis
-* Baseline vs DER
-
----
 
 ## FUTURE
 
@@ -2613,18 +2153,6 @@ flowchart LR
 | Violation History   | When and where did constraints occur?           |
 | Historical Analysis | How did the network change over time?           |
 | Baseline vs DER     | How does the DER scenario differ from baseline? |
-
----
-
-# 🚨 Constraint Reference
-
-| Constraint           | Example Condition                                              |
-| -------------------- | -------------------------------------------------------------- |
-| Low Voltage          | Calculated voltage below configured threshold                  |
-| High Line Loading    | Calculated line loading approaches or exceeds configured limit |
-| Transformer Overload | Calculated transformer loading exceeds configured limit        |
-
-The actual thresholds depend on the configured network model and implementation.
 
 ---
 <h4>🌍 Sustainable Development Goals</h4>
