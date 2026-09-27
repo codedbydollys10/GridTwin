@@ -1,0 +1,23 @@
+GridTwin Synthetic Data Validation Report
+==================================================
+solar.csv rows: 1440
+load.csv rows: 1440
+Start time: 00:00
+End time: 23:59
+Timestep: 1 minute
+Timestamp alignment (solar==load): PASS
+Missing timestamp check: PASS (none missing)
+Duplicate timestamp check: PASS (0 duplicates)
+Minimum solar: 0.00 kW
+Maximum solar: 190.00 kW
+Average solar: 63.01 kW
+Total solar energy: 1512.27 kWh
+Minimum load: 73.49 kW
+Maximum load: 180.00 kW
+Average load: 124.31 kW
+Total load energy: 2983.42 kWh
+Negative values check: PASS
+Null/missing value check: PASS
+Solar zero outside daylight hours: PASS
+Max minute-to-minute solar change: 0.71 kW
+Max minute-to-minute load change: 1.70 kW
