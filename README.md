@@ -11,14 +11,25 @@
 
 <p align="center">
 
-![React](https://img.shields.io/badge/Frontend-React-61DAFB?logo=react&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)
-![Three.js](https://img.shields.io/badge/3D-Three.js-black?logo=three.js)
-![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
-![Pandapower](https://img.shields.io/badge/Simulation-Pandapower-orange)
-![Vite](https://img.shields.io/badge/Build-Vite-646CFF?logo=vite&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green)
+  <img src="https://img.shields.io/badge/Frontend-React-61DAFB?style=for-the-badge&logo=react&logoColor=white" height="43">
+
+  <img src="https://img.shields.io/badge/Language-TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" height="43">
+
+  <img src="https://img.shields.io/badge/3D-Three.js-000000?style=for-the-badge&logo=threedotjs&logoColor=white" height="43">
+
+  <img src="https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" height="43">
+
+  <img src="https://img.shields.io/badge/Language-Python-3776AB?style=for-the-badge&logo=python&logoColor=white" height="43">
+
+  <img src="https://img.shields.io/badge/Simulation-Pandapower-F59E0B?style=for-the-badge" height="43">
+
+  <img src="https://img.shields.io/badge/Build-Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" height="43">
+
+  <img src="https://img.shields.io/badge/Package-pnpm-F69220?style=for-the-badge&logo=pnpm&logoColor=white" height="43">
+
+  <img src="https://img.shields.io/badge/Grid-Renewable%20Energy-16A34A?style=for-the-badge&logo=solarpanels&logoColor=white" height="43">
+
+  <img src="https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge&logo=opensourceinitiative&logoColor=white" height="43">
 
 </p>
 
