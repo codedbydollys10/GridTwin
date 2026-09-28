@@ -1,1852 +1,584 @@
+<h1 align="center"><img width="90" height="90" alt="image" src="https://github.com/user-attachments/assets/db52766f-2789-48ee-9d98-c11f0d5dacef" />
 
-<h1 align="center">⚡ GridTwin</h1>
+GridTwin</h1>
 
 <p align="center">
-  <strong>An Interactive 3D Digital Twin for Intelligent Distribution Grid Simulation</strong>
+  <strong>Model. Simulate. Understand. The Grid.</strong><br>
+  A physics-based 3D digital twin for renewable-rich electrical distribution networks.
 </p>
 
 <p align="center">
-  Simulate • Visualize • Analyze • Detect • Compare • Optimize
+  <img alt="React" src="https://img.shields.io/badge/Frontend-React-61DAFB?logo=react&logoColor=white">
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white">
+  <img alt="Three.js" src="https://img.shields.io/badge/3D-Three.js-000000?logo=threedotjs&logoColor=white">
+  <img alt="Vite" src="https://img.shields.io/badge/Build-Vite-646CFF?logo=vite&logoColor=white">
+  <img alt="pnpm" src="https://img.shields.io/badge/Package-pnpm-F69220?logo=pnpm&logoColor=white">
+  <img alt="FastAPI" src="https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white">
+  <img alt="Python" src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white">
+  <img alt="pandapower" src="https://img.shields.io/badge/Power%20flow-pandapower-F59E0B">
+  <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-22C55E">
 </p>
 
-<p align="center">
+GridTwin runs time-series AC power-flow simulations of a small distribution feeder with solar PV, loads and a battery, then presents the calculated results in an interactive 3D scene with a synchronized timeline and analytics. The backend (Python, FastAPI, pandapower) is the single source of electrical truth; the frontend (React, TypeScript, Three.js) only visualizes what the backend returns.
 
-  <img src="https://img.shields.io/badge/Frontend-React-61DAFB?style=for-the-badge&logo=react&logoColor=white" height="40">
+GridTwin is an **offline simulation and decision-support prototype**. It is not connected to a live utility system, and it is not a substitute for a validated utility planning tool.
 
-  <img src="https://img.shields.io/badge/Language-TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" height="40">
+> **How to read status tags in this document**
+>
+> | Tag | Meaning |
+> |---|---|
+> | **Documented** | Described as part of the project's current scope in the previous README and its architecture map. |
+> | **Unverified** | Named in the project brief but with no evidence in the previous README. Confirm against source before publishing. |
+> | **Planned** | Roadmap item. Not implemented. |
+> | **Reference** | Belongs to an external repository, not to GridTwin. |
+>
+> Items marked `VERIFY` are the only places where source-derived values still need to be filled in. They are collected in the [Verification checklist](#verification-checklist).
 
-  <img src="https://img.shields.io/badge/3D-Three.js-000000?style=for-the-badge&logo=threedotjs&logoColor=white" height="40">
+## Table of contents
 
-  <img src="https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" height="40">
-
-  <img src="https://img.shields.io/badge/Language-Python-3776AB?style=for-the-badge&logo=python&logoColor=white" height="40">
-
-  <img src="https://img.shields.io/badge/Simulation-Pandapower-F59E0B?style=for-the-badge" height="40">
-
-  <img src="https://img.shields.io/badge/Build-Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" height="40">
-
-  <img src="https://img.shields.io/badge/Package-pnpm-F69220?style=for-the-badge&logo=pnpm&logoColor=white" height="40">
-
-  <img src="https://img.shields.io/badge/Grid-Renewable%20Energy-16A34A?style=for-the-badge&logo=solarpanels&logoColor=white" height="40">
-
-  <img src="https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge&logo=opensourceinitiative&logoColor=white" height="40">
-
-</p>
-
----
-
-# 🌐 What is GridTwin?
-
-**GridTwin** is an interactive digital twin platform for electrical distribution networks.
-
-It combines:
-
-- ⚡ Electrical power-flow simulation
-- 🌐 Interactive 3D digital twin
-- ☀️ Solar generation
-- 🔋 Battery Energy Storage System (BESS)
-- 🏠 Electrical loads
-- 🌦️ Weather data
-- 🚨 Constraint and violation detection
-- 📊 Advanced analytics
-- 🕐 Minute-by-minute simulation
-- 🔬 Baseline vs DER comparison
-- 🧪 What-If analysis
-- 📉 Power-loss analysis
-- 🔄 Animated power-flow visualization
+1. [Overview](#1-overview)
+2. [Capabilities and status](#2-capabilities-and-status)
+3. [Architecture](#3-architecture)
+4. [Simulation lifecycle](#4-simulation-lifecycle)
+5. [Network model](#5-network-model)
+6. [Glossary and physical principles](#6-glossary-and-physical-principles)
+7. [Engineering methodology](#7-engineering-methodology)
+8. [Violation detection and convergence handling](#8-violation-detection-and-convergence-handling)
+9. [Battery and DER modelling](#9-battery-and-der-modelling)
+10. [Baseline vs DER and What-If analysis](#10-baseline-vs-der-and-what-if-analysis)
+11. [Timeline synchronization](#11-timeline-synchronization)
+12. [Analytics and Simulation Results](#12-analytics-and-simulation-results)
+13. [3D digital twin](#13-3d-digital-twin)
+14. [Input data](#14-input-data)
+15. [IEEE 33-bus reference](#15-ieee-33-bus-reference)
+16. [Technology stack and repository structure](#16-technology-stack-and-repository-structure)
+17. [Installation and running](#17-installation-and-running)
+18. [API reference](#18-api-reference)
+19. [Example workflow](#19-example-workflow)
+20. [Screenshots](#20-screenshots)
+21. [Testing and validation](#21-testing-and-validation)
+22. [Limitations](#22-limitations)
+23. [Troubleshooting](#23-troubleshooting)
+24. [Roadmap](#24-roadmap)
+25. [References, context and license](#25-references-context-and-license)
+26. [Verification checklist](#verification-checklist)
 
 ---
 
-# 💡 The Idea
-GridTwin follows a simple concept:
+## 1. Overview
 
-```text
-Electrical Data
-      ↓
-Data Processing
-      ↓
-Power-Flow Simulation
-      ↓
-Electrical Results
-      ↓
-Constraint + Loss Analysis
-      ↓
-Simulation History
-      ↓
-Interactive 3D Digital Twin
-      ↓
-Timeline + Analytics
-```
+**Problem.** Distribution networks were designed for one-way power flow from a substation to consumers. Rooftop and community solar reverses flow at midday, can raise voltage above limits, and adds thermal stress to lines and transformers. Batteries can help, but their effect depends on timing, size and location. Tabular power-flow output makes these time-varying interactions hard to see.
 
-The frontend should not invent electrical results.
+**Approach.** GridTwin couples a real AC power-flow solver with a spatial interface:
 
-Electrical values such as power flow, loading, voltage, and losses should originate from the simulation/backend results and then be presented visually.
+1. Solar, load and (optionally) weather data drive a network model at each timestep.
+2. pandapower solves the power flow.
+3. The backend derives voltages, loadings, losses, battery state and violations, and stores them per timestep.
+4. The frontend renders one selected timestep across the 3D scene, inspector, KPIs and charts.
 
-The goal is simple:
+**Design contract.**
 
-> ### Don't just calculate what is happening in the grid.  
-> ### Let the user actually see it.
+- Electrical values shown in the UI originate from backend calculation. The frontend does not synthesize voltages, loadings or losses.
+- Violation state comes from calculated values compared with configured limits, not from frontend colour rules.
+- A power flow that fails to converge must be reported as a failure, never as a successful result and never replaced with placeholder values. `VERIFY` that `powerflow.py` and `timestep.py` enforce this (see [section 8](#8-violation-detection-and-convergence-handling)).
+- Simulated, measured, estimated, forecast and externally reported values are labelled distinctly (see [section 6.4](#64-value-provenance)).
+
+**Key differentiators.** Real AC power flow rather than a heuristic; one canonical timeline position shared by every view; baseline-versus-scenario comparison on calculated values; an explicit boundary between what is implemented and what is roadmap.
 
 ---
 
-# 🎯 Core Concept
+## 2. Capabilities and status
+
+| Capability | Status | What it does |
+|---|---|---|
+| 3D digital twin (React, Three.js, GLB/GLTF assets) | Documented | Select, orbit, pan, zoom and inspect network components. |
+| AC power flow with pandapower | Documented | Newton–Raphson solution of bus voltages and branch flows per timestep. |
+| Time-series simulation (minute resolution) | Documented | Steps through aligned solar and load data; stores each timestep. |
+| Solar, load and battery modelling | Documented | Time-series PV and load inputs; battery with `CHARGE`, `IDLE`, `DISCHARGE` states. |
+| Violation detection | Documented | Low voltage, line loading and transformer overload against configured limits; `NORMAL` / `WARNING` / `CRITICAL`. |
+| Power-loss analytics | Documented | Loss analysis served by the backend. |
+| Historical analysis and timeline | Documented | Play, pause, step, scrub, speed; all views follow `selectedTimestepIndex`. |
+| Baseline vs DER comparison | Documented | Compares original and DER scenarios on calculated metrics (`comparison.py`). |
+| What-If analysis | Documented | Applies an action to a copy of the network and compares with baseline (`whatif.py`). |
+| Live weather context | Documented | Fetches weather through a provider API using `WEATHER_API_KEY`. |
+| CSV upload and validation | Documented | Validates and aligns `solar.csv` and `load.csv` (`csv_service.py`). |
+| Network Builder | Unverified | Named in the project brief; no evidence in prior documentation. |
+| State Estimation | Unverified | Same. See [6.4](#64-value-provenance) for why it must not be confused with simulation. |
+| Short-Circuit Analysis | Unverified | Same. |
+| SCADA/EMS-style monitoring view | Unverified | If present, it is a simulated interface, not a utility integration. |
+| Dataset Creator | Unverified | Same. |
+| IEEE 33-bus benchmarking inside GridTwin | Unverified | The IEEE 33-bus work in this document is a **Reference** repository ([section 15](#15-ieee-33-bus-reference)). |
+| Battery, curtailment, voltage and loss optimization | Planned | No optimization method is claimed. |
+| SCADA, IoT, smart-meter and real-time ingestion | Planned | No live integration exists. |
+| Machine learning and predictive constraint detection | Planned | |
+
+---
+
+## 3. Architecture
+
+The module map below is taken from the project's file structure. `VERIFY` each module boundary against imports before release.
 
 ```mermaid
 flowchart LR
+    U(["User"]) --> H["Home.tsx<br/>dashboard, timeline, analytics"]
+    H --> T["DigitalTwin.tsx<br/>3D scene"]
+    H --> A["api.ts<br/>API client"]
+    A --> M["main.py<br/>FastAPI routes"]
 
-    A["☀️ Solar Data"] --> D["⚙️ GridTwin Simulation"]
-    B["🏠 Load Data"] --> D
-    C["🌦️ Weather Data"] --> D
+    CSV[/"solar.csv, load.csv"/] --> A
+    WX[/"Weather provider"/] -.-> WS["weather.py"]
 
-    D --> E["⚡ Pandapower Power Flow"]
+    M --> CS["csv_service.py<br/>validate and align"]
+    M --> WS
+    M --> N["network.py<br/>build pandapower network"]
+    M --> TS["timestep.py<br/>timestep runner"]
 
-    E --> F["📊 Electrical Results"]
-    E --> G["🚨 Constraint Detection"]
-    E --> H["📉 Power Loss"]
-    E --> I["🔋 BESS State"]
+    TS --> PF["powerflow.py<br/>pandapower runpp"]
+    TS --> B["battery.py<br/>dispatch"]
+    TS --> R["results.py<br/>result extraction"]
+    R --> HI["Timestep history<br/>held in main.py"]
 
-    F --> J["🌐 3D Digital Twin"]
-    G --> K["🚨 Violation Analytics"]
-    H --> L["📈 Loss Analytics"]
-    I --> M["🔋 Battery Analytics"]
-
-    J --> N["👤 User"]
-    K --> N
-    L --> N
-    M --> N
-```
-# System Architecture
-```mermaid
-
-flowchart TB
-
-    subgraph INPUT["📥 INPUT DATA"]
-        SOLAR["☀️ Solar CSV"]
-        LOAD["🏠 Load CSV"]
-        WEATHER["🌦️ Weather API"]
-    end
-
-    subgraph BACKEND["🐍 FASTAPI BACKEND"]
-        API["REST API"]
-        DATA["Data Processing"]
-        SIM["Simulation Engine"]
-        PP["⚡ Pandapower"]
-        HISTORY["🕐 Simulation History"]
-        WHATIF["🧪 What-If Engine"]
-        VIOLATION["🚨 Constraint Detection"]
-        LOSS["📉 Loss Calculation"]
-    end
-
-    subgraph FRONTEND["⚛️ REACT FRONTEND"]
-        UI["Dashboard"]
-        TWIN["🌐 3D Digital Twin"]
-        TIMELINE["🎞️ Timeline"]
-        ANALYTICS["📊 Analytics"]
-        INSPECTOR["🔎 Component Inspector"]
-    end
-
-    SOLAR --> API
-    LOAD --> API
-    WEATHER --> API
-
-    API --> DATA
-    DATA --> SIM
-    SIM --> PP
-
-    PP --> HISTORY
-    PP --> VIOLATION
-    PP --> LOSS
-
-    HISTORY --> UI
-    VIOLATION --> UI
-    LOSS --> UI
-
-    PP --> WHATIF
-
-    UI --> TWIN
-    UI --> TIMELINE
-    UI --> ANALYTICS
-    UI --> INSPECTOR
+    M --> V["violations.py"]
+    M --> C["comparison.py"]
+    M --> W["whatif.py"]
+    HI --> M
+    M -->|"JSON results"| A
 ```
 
-# 🔎 GridTwin at a Glance
+**Runtime boundary.** The browser talks only to the FastAPI service. All electrical computation runs server-side in Python. The 3D scene, charts and inspector are pure renderers of returned data.
 
-| Capability           | Purpose                                           |
-| -------------------- | ------------------------------------------------- |
-| 3D Digital Twin      | Visual representation of the distribution network |
-| Power Flow           | Calculates electrical operating conditions        |
-| Solar Time Series    | Represents distributed renewable generation       |
-| Load Time Series     | Represents electricity consumption                |
-| Weather              | Provides environmental context                    |
-| BESS                 | Represents battery storage behavior               |
-| Timeline             | Moves through minute-level simulation history     |
-| Constraint Detection | Identifies configured electrical limits           |
-| Power Loss Analytics | Examines simulated electrical losses              |
-| Historical Analysis  | Inspects previously calculated timesteps          |
-| What-If Analysis     | Tests changes without modifying the baseline      |
-| Baseline vs DER      | Compares original and DER scenarios               |
+**History and caching.** Calculated timesteps are stored so that moving the timeline reads a stored result and does not re-run pandapower. `VERIFY` where history is held (the architecture map places it in `main.py`) and that it is in-memory, meaning it is lost when the server restarts.
 
 ---
 
-# 🏗️ Architecture
-
-## Overall Architecture
-
-```mermaid
-flowchart LR
-    subgraph INPUT["Input Data"]
-        SOLAR["Solar CSV"]
-        LOAD["Load CSV"]
-        WEATHER["Weather API"]
-    end
-
-    subgraph BACKEND["FastAPI Backend"]
-        API["FastAPI"]
-        PROCESS["Data Processing"]
-        GRID["Grid Model"]
-        PP["Pandapower"]
-        HISTORY["Simulation History"]
-        CHECK["Constraint Detection"]
-        LOSS["Power Loss"]
-        WHATIF["What-If Scenarios"]
-    end
-
-    subgraph FRONTEND["React Frontend"]
-        UI["Application UI"]
-        TWIN["3D Digital Twin"]
-        TIME["Timeline"]
-        ANALYTICS["Analytics"]
-        INSPECT["Component Inspector"]
-    end
-
-    SOLAR --> PROCESS
-    LOAD --> PROCESS
-    WEATHER --> PROCESS
-
-    PROCESS --> GRID
-    API --> PROCESS
-    GRID --> PP
-
-    PP --> HISTORY
-    PP --> CHECK
-    PP --> LOSS
-    PP --> WHATIF
-
-    HISTORY --> UI
-    CHECK --> UI
-    LOSS --> UI
-    WHATIF --> UI
-
-    UI --> TWIN
-    UI --> TIME
-    UI --> ANALYTICS
-    UI --> INSPECT
-```
-
----
-
-## Simulation Flow
-
-```mermaid
-flowchart LR
-    subgraph INPUT["Inputs"]
-        S["Solar CSV"]
-        L["Load CSV"]
-        W["Weather"]
-    end
-
-    subgraph SIM["Simulation"]
-        P["Data Processing"]
-        G["Build Grid"]
-        PP["Pandapower"]
-    end
-
-    subgraph RESULTS["Results"]
-        R["Electrical Results"]
-        H["History"]
-        V["Violations"]
-        LS["Losses"]
-    end
-
-    subgraph UI["Visualization"]
-        F["Frontend"]
-    end
-
-    S --> P
-    L --> P
-    W --> P
-    P --> G
-    G --> PP
-    PP --> R
-
-    R --> H
-    R --> V
-    R --> LS
-
-    H --> F
-    V --> F
-    LS --> F
-```
-
----
-
-## Data Flow
-
-```mermaid
-flowchart LR
-    subgraph DATA["Source Data"]
-        SOLAR["Solar"]
-        LOAD["Load"]
-        WEATHER["Weather"]
-    end
-
-    subgraph PROCESS["Processing"]
-        NORMALIZE["Prepare Time Series"]
-        MODEL["Apply Grid Inputs"]
-    end
-
-    subgraph ENGINE["Electrical Engine"]
-        PF["Pandapower"]
-    end
-
-    subgraph OUTPUT["Simulation Outputs"]
-        VOLT["Voltage"]
-        FLOW["Power Flow"]
-        LOADING["Loading"]
-        LOSS["Losses"]
-        VIOL["Violations"]
-        BATT["Battery State"]
-    end
-
-    SOLAR --> NORMALIZE
-    LOAD --> NORMALIZE
-    WEATHER --> NORMALIZE
-
-    NORMALIZE --> MODEL
-    MODEL --> PF
-
-    PF --> VOLT
-    PF --> FLOW
-    PF --> LOADING
-    PF --> LOSS
-    PF --> VIOL
-    PF --> BATT
-```
-
----
-
-## Timeline Synchronization
-
-GridTwin uses one canonical simulation position:
-
-```text
-selectedTimestepIndex
-```
-
-Every historical visualization should derive its state from this selected index.
-
-```mermaid
-flowchart TB
-    T["selectedTimestepIndex"]
-
-    subgraph VIS["Synchronized Views"]
-        D["3D Twin"]
-        C["Component Details"]
-        K["KPIs"]
-        B["Battery"]
-    end
-
-    subgraph ANA["Analytics"]
-        P["Power Loss"]
-        V["Voltage Profile"]
-        H["Violations"]
-        HA["Historical Analysis"]
-    end
-
-    T --> D
-    T --> C
-    T --> K
-    T --> B
-    T --> P
-    T --> V
-    T --> H
-    T --> HA
-```
-
-### Why this matters
-
-If the user selects `00:08`, every part of the application should represent the **00:08 state**.
-
-The following should therefore remain synchronized:
-
-* 3D digital twin
-* Component sidebar
-* KPIs
-* Battery analytics
-* Power-loss analytics
-* Voltage profile
-* Violation history
-* Historical analysis
-
-The application should not mix a selected historical state with the latest simulation state.
-
-Simulation history should be cached so moving the timeline can retrieve an already calculated state instead of rerunning Pandapower for every slider movement.
-
----
-
-## Constraint Detection
-
-```mermaid
-flowchart TB
-    R["Power Flow Result"]
-    C["Constraint Check"]
-
-    subgraph STATES["Electrical State"]
-        N["NORMAL"]
-        W["WARNING"]
-        CR["CRITICAL"]
-    end
-
-    E["Violation Event"]
-    A["Analytics"]
-
-    R --> C
-    C --> N
-    C --> W
-    C --> CR
-
-    CR --> E
-    W --> E
-    E --> A
-```
-
-The exact state should be derived from **calculated values compared against configured limits**, rather than from arbitrary frontend colors.
-
----
-
-## What-If Analysis
-
-```mermaid
-flowchart TB
-    B["Baseline Grid"]
-    S["Scenario Copy"]
-    A["Apply Action"]
-    P["Run Pandapower"]
-    R["Scenario Results"]
-    C["Constraint Check"]
-    COMP["Baseline vs Scenario"]
-
-    B --> S
-    S --> A
-    A --> P
-    P --> R
-    R --> C
-    C --> COMP
-```
-
-The baseline network remains unchanged while the scenario operates on a copy.
-
----
-
-## Future Real-Time Architecture
-
-> [!IMPORTANT]
-> The following architecture represents a **future roadmap**, not a claim that GridTwin currently implements utility-grade real-time operation.
-
-```mermaid
-flowchart LR
-    subgraph GRID["Physical Grid"]
-        PG["Physical Grid"]
-    end
-
-    subgraph FIELD["Field Data"]
-        SCADA["SCADA / IoT"]
-        METERS["Smart Meters"]
-    end
-
-    subgraph DATA["Real-Time Layer"]
-        RT["Real-Time Data"]
-    end
-
-    subgraph GT["GridTwin"]
-        SIM["Simulation"]
-        ANA["Analytics"]
-        OPT["Optimization"]
-    end
-
-    subgraph HUMAN["Decision Layer"]
-        TWIN["3D Digital Twin"]
-        DEC["Human Decision"]
-    end
-
-    PG --> SCADA
-    PG --> METERS
-    SCADA --> RT
-    METERS --> RT
-
-    RT --> SIM
-    SIM --> ANA
-    ANA --> OPT
-    OPT --> TWIN
-    TWIN --> DEC
-```
-
----
-
-## Future Predictive Intelligence
-
-```mermaid
-flowchart LR
-    HIST["Historical Simulation"]
-    LIVE["Future Real-Time Data"]
-    FEATURES["Feature Extraction"]
-    ML["Predictive Intelligence"]
-    PRED["Predicted Constraints"]
-    REC["Recommended Actions"]
-    USER["Human Decision"]
-
-    HIST --> FEATURES
-    LIVE --> FEATURES
-    FEATURES --> ML
-    ML --> PRED
-    ML --> REC
-    PRED --> USER
-    REC --> USER
-```
-
-This represents a future architecture for predictive constraint detection and decision support.
-
----
-
----
-
-# 🌐 3D Digital Twin
-
-GridTwin represents the distribution network through interactive 3D assets.
-
-The visual environment can contain concepts such as:
-
-| Component           | Simple explanation                                     |
-| ------------------- | ------------------------------------------------------ |
-| 🏠 House            | Represents an electricity-consuming location or load   |
-| ☀️ Solar Panel      | Represents distributed solar generation                |
-| ☀️ Solar Farm       | Represents a larger solar-generation source            |
-| 🔋 Battery          | Represents energy storage                              |
-| 🔌 Transformer      | Changes electrical voltage levels                      |
-| 🏭 Substation       | Represents a major point in the distribution network   |
-| ⚡ Electrical Bus    | Represents an electrical connection point in the model |
-| ─ Distribution Line | Connects electrical buses and carries power            |
-
-The 3D assets can be represented using **GLB/GLTF models**.
-
----
-
-# 🔋 Animated Power Flow
-
-Electrical connections can be represented through animated flow lines.
-
-The animation communicates the direction or movement of electrical power through the modeled network.
-
-The visual state should be derived from calculated electrical values and configured thresholds.
-
-| State     | Visual meaning                         |
-| --------- | -------------------------------------- |
-| 🟢 Green  | Normal operating condition             |
-| 🟡 Yellow | Warning / approaching configured limit |
-| 🔴 Red    | Critical / configured limit exceeded   |
-
-These colors are therefore not arbitrary decoration.
-
-For example, a line's visual state can be determined from its calculated loading percentage compared with the configured operating limi
-# 🌦️ Weather
-
-GridTwin can retrieve live weather information through a weather API.
-
-Example fields include:
-
-| Field                   | Meaning                   |
-| ----------------------- | ------------------------- |
-| `temperature_c`         | Temperature in Celsius    |
-| `cloud_cover_percent`   | Cloud coverage percentage |
-| `solar_irradiance_w_m2` | Solar irradiance          |
-| `humidity_percent`      | Relative humidity         |
-| `wind_speed_m_s`        | Wind speed                |
-
-
-Weather provides environmental context and can potentially influence renewable-generation scenarios.
-## Weather API Configuration
-Create:
-```text
-backend/.env
-```
-Add:
-```env
-WEATHER_API_KEY=your_api_key_here
-```
-> [!WARNING]
-> Never commit API keys or other secrets to GitHub.
----
-
-# 🔋 BESS — Battery Energy Storage System
-
-**BESS** means **Battery Energy Storage System**.
-
-A battery can store electrical energy and later release it back into the network.
-
-GridTwin can represent three basic battery states:
-
-| State       | Meaning                                         |
-| ----------- | ----------------------------------------------- |
-| `CHARGE`    | Battery is absorbing/storing energy             |
-| `IDLE`      | Battery is not actively charging or discharging |
-| `DISCHARGE` | Battery is supplying stored energy              |
-
----
-# ⚡ Electrical Bus
-A **bus** is an electrical connection point in the network model.
-It is where components connect and where electrical quantities such as voltage can be evaluated.
-In simple terms:
-> A bus is a point in the electrical model where different parts of the network meet.
-A bus is primarily an **electrical modeling concept** and does not necessarily represent a physical object.
-
----
-# ─ Distribution Lines
-A distribution line connects electrical buses and carries power through the network.
-GridTwin can track:
-
-| Line Metric        | Meaning                                                                |
-| ------------------ | ---------------------------------------------------------------------- |
-| Loading percentage | How heavily the line is being used relative to its configured capacity |
-| Power flow         | Electrical power moving through the line                               |
-| Losses             | Electrical energy/power lost in the line                               |
-| Operating state    | Current calculated condition                                           |
-
-Example feeder identifiers may include:
-```text
-line_01
-line_02
-line_03
-line_04
-line_05
-```
-The exact number and naming of lines depends on the configured network model.
-
----
-# 🔌 Transformer
-A transformer changes electrical voltage levels between parts of the network.
-This is important because distribution networks operate across different voltage levels.
-
-GridTwin can track:
-
-* Transformer loading
-* Power flow
-* Operating state
-
-Transformer constraints can therefore be detected alongside line and voltage constraints.
----
-# 🚨 Constraint / Violation Detection
-
-GridTwin detects electrical constraints by comparing calculated values against configured limits.
-
-Conceptually:
-
-```text
-Actual Value
-     vs
-Configured Limit
-```
-Possible states are:
-
-```text
-NORMAL
-WARNING
-CRITICAL
-```
-Examples include:
-
-* Low voltage
-* High line loading
-* Transformer overload
-
-A violation record can contain:
-
-| Field            | Description                                 |
-| ---------------- | ------------------------------------------- |
-| Timestamp        | Time at which the condition occurred        |
-| Component        | Affected component                          |
-| Component ID     | Identifier of the affected component        |
-| Violation type   | Type of electrical constraint               |
-| Actual value     | Calculated value                            |
-| Configured limit | Applicable threshold                        |
-| Severity         | Normal, warning, or critical classification |
-
-The important principle is that violation status should be derived from **actual simulation results and configured limits**, not arbitrary frontend values.
----
-
-# 📊 Analytics Dashboard
-
-GridTwin's analytics layer can expose several complementary views.
-
-| Analytics           | Purpose                                                    |
-| ------------------- | ---------------------------------------------------------- |
-| Voltage Profile     | Understand voltage conditions across the network           |
-| Line Loading        | Inspect utilization of distribution lines                  |
-| Power Loss          | Identify simulated electrical losses                       |
-| Battery Analytics   | Inspect SOC and charge/discharge behavior                  |
-| Violation History   | Review detected constraints over time                      |
-| Historical Analysis | Explore simulation behavior across timestamps              |
-| Baseline vs DER     | Compare original and distributed-energy-resource scenarios |
-
-All historical analytics should remain synchronized with `selectedTimestepIndex` where the metric represents a single simulation timestep.
----
-# 📈 Voltage Profile
-
-Voltage profile analysis shows how calculated voltage varies across the modeled network.
-
-It can help identify:
-
-* Normal voltage conditions
-* Low-voltage conditions
-* High-voltage conditions
-* Changes caused by load
-* Changes caused by distributed generation
-
-Voltage values should originate from the electrical simulation.
-
----
-
-# 📊 Line Loading
-
-Line loading indicates how heavily a distribution line is being used relative to its configured limit.
-
-Conceptually:
-
-```text
-Calculated Loading
-        ↓
-Configured Limit
-        ↓
-Operating State
-```
-
-This metric is particularly useful for identifying lines that approach or exceed configured operating limits.
-
----
-
-# 🔋 Battery Analytics
-
-Battery analytics can include:
-
-* Current SOC
-* Battery power
-* Current state
-* Charge/discharge history
-* SOC over time
-* Behavior during scenarios
-
-Battery analytics should use the same selected simulation timestamp as the rest of the application when displaying a historical state.
-
----
-
-### Comparison Flow
-
-```mermaid
-flowchart LR
-    subgraph BASE["Baseline"]
-        B["Original Grid"]
-        BR["Baseline Results"]
-    end
-
-    subgraph DER["DER Scenario"]
-        D["Solar / Battery / DER"]
-        DR["Scenario Results"]
-    end
-
-    subgraph COMP["Comparison"]
-        V["Voltage"]
-        L["Line Loading"]
-        T["Transformer Loading"]
-        P["Power Loss"]
-        C["Violations"]
-    end
-
-    B --> BR
-    D --> DR
-
-    BR --> V
-    DR --> V
-
-    BR --> L
-    DR --> L
-
-    BR --> T
-    DR --> T
-
-    BR --> P
-    DR --> P
-
-    BR --> C
-    DR --> C
-```
-
-The comparison should use calculated simulation values rather than presentation-only values.
-
----
-### What-If Architecture
-
-```mermaid
-flowchart LR
-    subgraph BASE["Baseline"]
-        B["Baseline Grid"]
-    end
-
-    subgraph SCENARIO["Scenario"]
-        COPY["Scenario Copy"]
-        ACTION["Apply Action"]
-        RUN["Run Pandapower"]
-    end
-
-    subgraph RESULT["Analysis"]
-        RESULTS["Scenario Results"]
-        CHECK["Constraint Check"]
-        COMP["Baseline vs Scenario"]
-    end
-
-    B --> COPY
-    COPY --> ACTION
-    ACTION --> RUN
-    RUN --> RESULTS
-    RESULTS --> CHECK
-    CHECK --> COMP
-    B --> COMP
-```
----
-
-# 📥 Input Data
-
-GridTwin currently uses:
-
-```text
-solar.csv
-load.csv
-```
-
-The two datasets represent different sides of the electrical balance:
-
-| Dataset     | Represents  |
-| ----------- | ----------- |
-| `solar.csv` | Generation  |
-| `load.csv`  | Consumption |
-
-Together, they influence the electrical conditions calculated by the simulation.
-
----
-
-# 🛠️ Technology Stack
-
-| Technology        | Role                                           |
-| ----------------- | ---------------------------------------------- |
-| React             | Frontend application                           |
-| TypeScript        | Type-safe frontend development                 |
-| Three.js          | 3D rendering                                   |
-| React Three Fiber | React integration for Three.js                 |
-| GLB / GLTF        | 3D assets                                      |
-| FastAPI           | Python backend/API layer                       |
-| Python            | Simulation backend                             |
-| Pandapower        | Electrical network and power-flow calculations |
-| Pandas            | Time-series/data processing                    |
-| NumPy             | Numerical computation                          |
-| Weather API       | Environmental/weather information              |
-| Solar Data        | Renewable-generation input                     |
-| Load Data         | Electricity-consumption input                  |
-
----
-
-# 📁 Project Structure
-
-## 🏗️ GridTwin System Architecture
+## 4. Simulation lifecycle
 
 ```mermaid
 flowchart TD
-
-subgraph group_inputs["Inputs & API"]
-  node_api_client["API Client<br/>api.ts"]
-  node_api["FastAPI Endpoints<br/>main.py"]
-  node_csv_service["CSV Validation<br/>csv_service.py"]
-  node_weather["Weather Data<br/>weather.py"]
-end
-
-subgraph group_simulation["Grid Simulation"]
-  node_timestep["Timestep Runner<br/>timestep.py"]
-  node_powerflow["Power Flow<br/>powerflow.py"]
-  node_network["Grid Network<br/>network.py"]
-  node_battery["Battery Dispatch<br/>battery.py"]
-  node_results["Simulation Results<br/>results.py"]
-  node_history["Timestep History<br/>main.py"]
-end
-
-subgraph group_analysis["Analysis"]
-  node_violations["Constraint Detection<br/>violations.py"]
-  node_losses["Power-Loss Analysis<br/>main.py"]
-  node_comparison["Baseline Comparison<br/>comparison.py"]
-  node_whatif["What-If Analysis<br/>whatif.py"]
-end
-
-subgraph group_frontend["Interactive Views"]
-  node_home["GridTwin Dashboard<br/>Home.tsx"]
-  node_analytics["History Analytics<br/>Home.tsx"]
-  node_twin["3D Digital Twin<br/>DigitalTwin.tsx"]
-end
-
-node_user(("Grid Operator"))
-node_csv["Solar / Load CSV"]
-node_weather_service(("Weather Source"))
-
-node_user -->|"uses"| node_home
-node_csv -->|"uploads"| node_home
-
-node_home -->|"requests"| node_api_client
-node_api_client -->|"calls"| node_api
-
-node_api -->|"validates & aligns"| node_csv_service
-node_api -.->|"fetches context"| node_weather
-node_weather_service -.->|"provides data"| node_weather
-
-node_api -->|"creates grid"| node_network
-node_api -->|"runs timesteps"| node_timestep
-
-node_timestep -->|"calculates flow"| node_powerflow
-node_timestep -->|"dispatches storage"| node_battery
-node_timestep -->|"builds results"| node_results
-
-node_api -->|"stores & selects"| node_history
-node_api -->|"detects limits"| node_violations
-node_api -->|"serves loss analytics"| node_losses
-node_api -->|"runs comparison"| node_comparison
-node_api -.->|"supports scenarios"| node_whatif
-
-node_api -->|"returns results"| node_home
-
-node_home -->|"renders network"| node_twin
-node_home -->|"presents history"| node_analytics
-node_history -->|"supplies history"| node_analytics
-node_results -->|"records timesteps"| node_history
-
-classDef toneNeutral fill:#f8fafc,stroke:#334155,stroke-width:1.5px,color:#0f172a
-classDef toneBlue fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#172554
-classDef toneAmber fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f
-classDef toneMint fill:#dcfce7,stroke:#16a34a,stroke-width:1.5px,color:#14532d
-classDef toneRose fill:#ffe4e6,stroke:#e11d48,stroke-width:1.5px,color:#881337
-classDef toneIndigo fill:#e0e7ff,stroke:#4f46e5,stroke-width:1.5px,color:#312e81
-
-class node_api_client,node_api,node_csv_service,node_weather toneBlue
-class node_timestep,node_powerflow,node_network,node_battery,node_results,node_history toneAmber
-class node_violations,node_losses,node_comparison,node_whatif toneMint
-class node_home,node_analytics,node_twin toneRose
-class node_user,node_csv,node_weather_service toneIndigo
+    A["Upload solar.csv and load.csv"] --> B["Validate and align time series"]
+    B -->|"invalid"| X["Reject with validation error"]
+    B -->|"valid"| C["Build network model"]
+    C --> D{"For each timestep"}
+    D --> E["Apply load and PV values to network elements"]
+    E --> F["Battery dispatch decision"]
+    F --> G["Run AC power flow"]
+    G --> H{"Converged?"}
+    H -->|"no"| I["Record failure for this timestep<br/>do not invent values"]
+    H -->|"yes"| J["Extract bus, line, transformer results"]
+    J --> K["Detect violations"]
+    K --> L["Compute losses and battery state"]
+    L --> M["Store timestep in history"]
+    I --> M
+    M --> D
+    D -->|"done"| N["Serve history to frontend"]
+    N --> O["Render selected timestep"]
 ```
 
-### 🔗 Code References
+**Timestep execution.** For each timestep the runner sets the active load and PV output from the aligned inputs, asks the battery logic for a charge/idle/discharge decision, solves the power flow, extracts results, checks limits and appends a record to history. Resolution is minute-level per the project scope; the exact timestep length is taken from the aligned CSV timestamps (see [section 14](#14-input-data)).
 
-| Component | Source |
+`VERIFY`: the "record failure" branch above is the intended behaviour under the design contract. Confirm it matches `timestep.py` and note the actual behaviour (skip, carry forward, or abort) here.
+
+---
+
+## 5. Network model
+
+The project describes its prototype as a **small radial distribution feeder** with an external grid, one transformer, distribution lines, loads, solar generation and one battery. The analytics specification names the buses `BUS_01`–`BUS_06` and the lines `LINE_01`–`LINE_05`, which supports a six-bus radial topology. The previous documentation states that the exact count and naming depend on the configured model, so use the exact casing from the source.
+
+Fill the tables below directly from `backend/app/simulation/network.py`. Nothing in them should be assumed.
+
+**Topology** (`VERIFY`: replace with the real connection order and IDs)
+
+| Element | ID | From | To | Notes |
+|---|---|---|---|---|
+| External grid | `VERIFY` | | bus `VERIFY` | Slack reference, voltage setpoint (pu) |
+| Transformer | `VERIFY` | HV bus | LV bus | Rated MVA, HV/LV kV, short-circuit voltage |
+| Line | `LINE_01` (example) | bus `VERIFY` | bus `VERIFY` | Length km, R/X ohm/km, max current kA |
+| Line | `LINE_02` … `LINE_05` (examples) | | | |
+| Load | `VERIFY` | | bus `VERIFY` | P kW, Q kVAr |
+| Solar PV | `VERIFY` | | bus `VERIFY` | Peak kW, reactive assumption |
+| Battery | `VERIFY` | | bus `VERIFY` | Power kW, energy kWh, SOC limits, efficiency |
+
+**Limits** (`VERIFY`: from `violations.py`)
+
+| Quantity | Warning | Critical | Source |
+|---|---|---|---|
+| Bus voltage (pu) | `VERIFY` | `VERIFY` | `violations.py` |
+| Line loading (%) | `VERIFY` | `VERIFY` | `violations.py` |
+| Transformer loading (%) | `VERIFY` | `VERIFY` | `violations.py` |
+
+A topology diagram is deliberately omitted until these are verified, so the README does not present an invented network. The prototype feeder is a demonstration model. It is **not** a model of any real utility network and is **not** the IEEE 33-bus system.
+
+---
+
+## 6. Glossary and physical principles
+
+### 6.1 Network elements
+
+| Term | Definition | In GridTwin |
+|---|---|---|
+| **Bus / node** | A connection point in the electrical model where voltage is evaluated. A modelling concept, not necessarily a physical object. | Voltage is reported per bus. |
+| **Branch** | Any element linking two buses: a line or a transformer. | Lines and one transformer. |
+| **Line / feeder** | Conductor carrying power between buses. | IDs such as `LINE_01`. Reports flow, loading, losses. |
+| **Transformer** | Converts between voltage levels. | Loading and flow tracked. |
+| **External grid** | Slack source that fixes voltage and absorbs the power imbalance. | Substation source in the pandapower model. |
+| **Radial feeder** | Network with a single path from source to each load. | Prototype topology (`VERIFY`). |
+| **Topology** | Which elements connect to which buses. | Defined in `network.py`. |
+
+### 6.2 Electrical quantities
+
+| Term | Units | Meaning |
+|---|---|---|
+| **Nominal voltage** | kV | Design voltage of a bus. |
+| **Voltage magnitude (pu)** | dimensionless | `V_pu = V_actual / V_nominal`. 1.00 pu is nominal. Lets buses at different kV levels be compared. |
+| **Voltage angle** | degrees | Phase angle of bus voltage relative to the slack bus. Angle differences drive active power flow. |
+| **Active power P** | kW, MW | Power that does useful work. Loads consume it, PV and batteries supply it. |
+| **Reactive power Q** | kVAr, MVAr | Power exchanged with electric and magnetic fields. Affects voltage and current without doing net work. |
+| **Apparent power S** | kVA, MVA | `S = sqrt(P² + Q²)`. Sets equipment current and thermal duty. |
+| **Power factor** | dimensionless | `PF = P / S`. |
+| **Current / loading** | kA, % | Line loading `= I / I_max × 100`. Transformer loading is apparent power relative to rating. |
+| **Thermal limit** | kA, MVA | Maximum continuous loading before overheating. |
+| **Power-flow direction** | sign | Positive flow follows the branch's from→to convention. High PV can reverse flow toward the substation. |
+| **Grid import / export** | kW | Net exchange at the external grid. Positive import means the feeder draws from the grid. |
+| **Power loss** | kW | Instantaneous `P_loss = Σ I²R` over branches. |
+| **Energy loss** | kWh | `E_loss = Σ P_loss × Δt`. Cumulative over time. |
+
+### 6.3 Solver, DER and analysis terms
+
+| Term | Meaning | In GridTwin |
+|---|---|---|
+| **AC power flow** | Solves nonlinear power-balance equations for bus voltages given injections. | Run by pandapower each timestep. |
+| **Newton–Raphson** | Iterative method that linearizes the power-balance equations and updates voltage estimates until mismatches are small. | pandapower's default AC solver family. `VERIFY` any algorithm or tolerance override in `powerflow.py`. |
+| **Convergence** | Solver reaches the mismatch tolerance within its iteration limit. Failure means no valid solution was found. | Must be surfaced as failure. |
+| **Voltage violation** | Voltage outside the allowed band (low or high). | Detected by `violations.py`. |
+| **Overload** | Loading above a thermal limit. | Line and transformer. |
+| **DER** | Distributed energy resource: generation or storage connected in the distribution network. | PV and battery. |
+| **PV** | Photovoltaic generation. | Driven by `solar.csv`. |
+| **Curtailment** | Deliberate reduction of available generation. | **Planned** as an optimization. |
+| **BESS** | Battery energy storage system. | One battery with `CHARGE`, `IDLE`, `DISCHARGE`. |
+| **SOC** | State of charge: stored energy as a fraction of capacity. | Tracked per timestep. |
+| **Time-series simulation** | Repeated steady-state solutions over successive timesteps. Not a dynamic (transient) simulation. | Core mode. |
+| **Baseline / scenario** | Reference case versus a modified case. | Used by comparison and What-If. |
+| **Short-circuit / fault current** | Current during a fault, used to size protection. | **Unverified** feature. |
+| **State estimation** | Statistical estimate of the network state from redundant, noisy measurements. | **Unverified** feature. |
+| **Measurement residual** | Difference between a measurement and the value implied by the estimated state. Large residuals indicate bad data. | Applies only if state estimation exists. |
+| **Observability** | Whether the available measurements are sufficient to determine the full network state. | Applies only if state estimation exists. |
+| **SCADA** | Supervisory Control and Data Acquisition: field telemetry and control. | No live SCADA integration (**Planned**). |
+| **EMS** | Energy Management System: operator applications built on SCADA data. | No EMS integration. |
+
+### 6.4 Value provenance
+
+| Kind | Origin | Example | GridTwin |
+|---|---|---|---|
+| **Calculated / simulated** | Solver output from a model and assumed inputs | Bus voltage from pandapower | Yes. This is what the UI shows. |
+| **Measured** | Physical sensor reading | Smart-meter kW | Not used. |
+| **Estimated** | Statistical inference from measurements | State-estimator voltage | Not used unless State Estimation is verified. |
+| **Forecast** | Prediction of a future input | Day-ahead PV | Not used. |
+| **Externally reported** | Numbers from another project or paper | IEEE 33-bus results in [section 15](#15-ieee-33-bus-reference) | Attributed, never presented as GridTwin output. |
+
+Common confusions:
+
+- **kW vs kWh.** kW is a rate of energy transfer at an instant. kWh is energy accumulated over time. A 100 kW battery discharging for 30 minutes delivers 50 kWh.
+- **Battery power vs battery energy.** Power rating limits how fast the battery charges or discharges. Energy capacity limits how long it can sustain that rate.
+- **kV vs pu.** kV is absolute. pu is relative to the bus's nominal voltage, so 0.95 pu means something different in kV at 0.4 kV and at 11 kV.
+- **Instantaneous loss vs cumulative loss.** kW at one timestep versus the sum of kW × Δt over a period.
+- **Simulation vs state estimation.** Simulation predicts the state from assumed inputs. State estimation infers the state from measurements.
+
+---
+
+## 7. Engineering methodology
+
+**Steady-state assumption.** Each timestep is an independent steady-state AC power-flow solution. Dynamics, protection behaviour and controller transients are not modelled. Balanced three-phase operation is assumed (pandapower's standard symmetric model).
+
+**Solved system.** For each bus `i`:
+
+```text
+P_i = Σ_k |V_i||V_k| ( G_ik cos θ_ik + B_ik sin θ_ik )
+Q_i = Σ_k |V_i||V_k| ( G_ik sin θ_ik − B_ik cos θ_ik )
+```
+
+where `G + jB` is the bus admittance matrix and `θ_ik = θ_i − θ_k`. Newton–Raphson iterates on `|V|` and `θ` until the power mismatches fall below tolerance.
+
+**Net injection at a bus.**
+
+```text
+P_net = P_PV + P_battery_discharge − P_load − P_battery_charge
+```
+
+**Derived quantities.**
+
+```text
+V_pu             = V / V_nominal
+line loading %   = I / I_max × 100
+P_loss (kW)      = Σ over branches of branch active-power loss
+E_loss (kWh)     = Σ_t P_loss(t) × Δt(hours)
+```
+
+pandapower reports line loading from current relative to `max_i_ka`, and transformer loading relative to rated apparent power. `VERIFY` that GridTwin uses these result columns directly and does not recompute them differently.
+
+**Baseline vs DER methodology.** Run the same time series on the same network twice: once without the DER elements, once with them. Compare voltage extremes, number of violations, peak line and transformer loading, and total energy loss. Because the load and network are identical, differences are attributable to the DER. `VERIFY` the exact metric set in `comparison.py`.
+
+**Assumptions to keep in mind.** Loads are represented as specified in the input data (constant-power vs other models: `VERIFY`). PV reactive-power behaviour is an assumption of the model (`VERIFY`). Weather is context and does not by itself change electrical results unless the source explicitly links it to PV output (`VERIFY`).
+
+---
+
+## 8. Violation detection and convergence handling
+
+```mermaid
+flowchart TD
+    R["Converged power-flow result"] --> V["Bus voltage vs voltage band"]
+    R --> L["Line loading vs limit"]
+    R --> T["Transformer loading vs limit"]
+    V --> S{"Classify"}
+    L --> S
+    T --> S
+    S -->|"within limit"| N["NORMAL"]
+    S -->|"approaching limit"| W["WARNING"]
+    S -->|"limit exceeded"| C["CRITICAL"]
+    W --> E["Violation record"]
+    C --> E
+    E --> AN["Violation history and analytics"]
+```
+
+A violation record contains: timestamp, component type, component ID, violation type, actual value, configured limit and severity. The same classification drives the 3D colours (green, yellow, red), so the visual state and the analytics always agree.
+
+**Thresholds.** The voltage heatmap uses a 0.95–1.05 pu band. Line and transformer limits and the warning/critical split are in [section 5](#5-network-model) (`VERIFY`). For context only: a ±5 % band (0.95–1.05 pu) is a common distribution-voltage convention, for example ANSI C84.1 Range A for service voltage. That is a widely used reference, not a statement about GridTwin's configuration.
+
+**Convergence handling.** Required behaviour for a failed solve:
+
+1. Do not present the timestep as successful.
+2. Do not fill it with previous, interpolated or default values without labelling.
+3. Make the failure visible in the API response and the UI.
+
+Whether the current code does all three is a `VERIFY` item. If it does not, this section should say exactly what it does instead.
+
+---
+
+## 9. Battery and DER modelling
+
+**Solar PV.** Generation is read from `solar.csv` per timestep and applied to the PV element(s).
+
+**Battery states.**
+
+| State | Meaning |
 |---|---|
-| API Client | [`client/src/lib/api.ts`](client/src/lib/api.ts) |
-| FastAPI | [`backend/app/main.py`](backend/app/main.py) |
-| CSV Validation | [`backend/app/services/csv_service.py`](backend/app/services/csv_service.py) |
-| Weather | [`backend/app/services/weather.py`](backend/app/services/weather.py) |
-| Timestep Runner | [`backend/app/simulation/timestep.py`](backend/app/simulation/timestep.py) |
-| Power Flow | [`backend/app/simulation/powerflow.py`](backend/app/simulation/powerflow.py) |
-| Grid Network | [`backend/app/simulation/network.py`](backend/app/simulation/network.py) |
-| Battery Dispatch | [`backend/app/simulation/battery.py`](backend/app/simulation/battery.py) |
-| Simulation Results | [`backend/app/simulation/results.py`](backend/app/simulation/results.py) |
-| Constraint Detection | [`backend/app/simulation/violations.py`](backend/app/simulation/violations.py) |
-| Baseline Comparison | [`backend/app/simulation/comparison.py`](backend/app/simulation/comparison.py) |
-| What-If Analysis | [`backend/app/simulation/whatif.py`](backend/app/simulation/whatif.py) |
-| Dashboard | [`client/src/pages/Home.tsx`](client/src/pages/Home.tsx) |
-| 3D Digital Twin | [`client/src/components/digital-twin/DigitalTwin.tsx`](client/src/components/digital-twin/DigitalTwin.tsx) |
+| `CHARGE` | Absorbing energy from the network. |
+| `IDLE` | Neither charging nor discharging. |
+| `DISCHARGE` | Supplying stored energy. |
 
+**Generic SOC update** (the standard formulation; `VERIFY` against `battery.py`):
+
+```text
+Charging:     SOC(t+Δt) = SOC(t) + η_c · P_ch · Δt / E_cap
+Discharging:  SOC(t+Δt) = SOC(t) − P_dis · Δt / (η_d · E_cap)
+
+with  SOC_min ≤ SOC ≤ SOC_max   and   0 ≤ P ≤ P_rated
+```
+
+Parameters to document from source: `E_cap` (kWh), `P_rated` (kW), `SOC_min`, `SOC_max`, initial SOC, efficiencies and the dispatch rule (`VERIFY`, `battery.py`).
+
+**Not implemented.** No optimal dispatch is claimed. Battery behaviour follows the dispatch logic in `battery.py`, whatever that is; do not describe it as optimized unless an optimization method is present.
 
 ---
 
-# 🚀 Installation
+## 10. Baseline vs DER and What-If analysis
 
-## Prerequisites
+**Baseline vs DER** compares two full simulations of the same inputs, one without and one with DER (see [section 7](#7-engineering-methodology)). Only calculated values are compared.
 
-Depending on the current implementation, you will need:
+**What-If** evaluates a candidate action without altering the baseline.
 
-* Python
-* Node.js
-* pnpm
-* Git
+```mermaid
+flowchart LR
+    B["Baseline network"] --> C["Deep copy as scenario"]
+    C --> A["Apply action"]
+    A --> P["Run power flow"]
+    P --> K{"Converged?"}
+    K -->|"no"| F["Report infeasible or failed"]
+    K -->|"yes"| M["Extract metrics and violations"]
+    M --> CMP["Compare with baseline"]
+    B --> CMP
+```
+
+The result reports consequences of the action: changes in voltage, loading, losses and violations. It does not rank actions, assign a score or declare an action optimal. `VERIFY` the supported action types in `whatif.py` and list them here.
 
 ---
 
-## Backend Setup — Windows
+## 11. Timeline synchronization
 
-Create a Python virtual environment:
+GridTwin holds one canonical simulation position, `selectedTimestepIndex`. Every view that shows a single timestep derives from it, so selecting `00:08` shows the `00:08` state everywhere and never mixes it with the latest result.
 
-```powershell
-py -m venv .venv
-```
+| View | Question it answers | Follows `selectedTimestepIndex` |
+|---|---|---|
+| 3D twin and inspector | What is each component doing now? | Yes |
+| KPIs | Headline values at this timestep | Yes |
+| Voltage profile | How does voltage vary across buses? | Yes |
+| Line loading | Which lines are heavily used? | Yes |
+| Power loss | Where and when do losses occur? | Yes for a single timestep; cumulative views span the run |
+| Battery analytics | SOC, power, state | Yes; history charts span the run |
+| Violation history | When and where were limits crossed? | Spans the run |
+| Baseline vs DER | How does the DER case differ? | Depends on metric |
 
-Activate it:
+**Timeline controls:** play, pause, previous, next, slider, speed.
 
-```powershell
-.\.venv\Scripts\Activate.ps1
-```
-
-Install backend dependencies:
-
-```powershell
-py -m pip install -r backend\requirements.txt
-```
+**What voltage profiles reveal.** Load pulls voltage down along the feeder. Distributed generation raises voltage near where it connects and can push it above the upper limit during high PV and low load. Losses follow current squared, so both heavy load and high reverse flow raise them.
 
 ---
 
-# ▶️ Running the Backend
+## 12. Analytics and Simulation Results
 
-Start FastAPI with Uvicorn:
+This section presents the five analytics views of GridTwin. The interactive versions live in the running application (`client/src/pages/Home.tsx`, "History Analytics"); the PNG files below are **static previews**.
+
+> **Current status of the figures.** All five files in `docs/images/` are individually generated, white-background figures. Because no simulation history was available when they were produced, each one is a clearly labelled **"Data unavailable"** figure that lists the exact fields it needs. They contain no estimated or invented values. Once you run a simulation and regenerate them from the stored history (see [Regenerating the figures](#regenerating-the-figures)), the same filenames will hold real results.
+
+> **Provenance.** Every chart visualizes results calculated by the configured simulation model from the input CSVs. They are **not** live utility measurements. GridTwin has no verified live SCADA, IoT or smart-meter integration.
+
+> **Static previews vs interactive charts.** GitHub renders README images as static pictures; they cannot be hovered, clicked or synchronized with the timeline. Interactivity exists only in the running application ([how to open it](#opening-the-interactive-dashboard)). No public deployment is documented, so no hosted link is given.
+
+### What the quantities mean
+
+| Quantity | Unit | Physical meaning |
+|---|---|---|
+| Voltage | pu | Bus voltage relative to its nominal value. 1.00 pu is nominal. Values outside 0.95–1.05 pu are flagged as voltage violations. |
+| Active power loss | kW | Instantaneous power dissipated as heat in the lines (`I²R`) at one timestep. |
+| Energy loss | kWh | Power loss accumulated over time, `Σ P_loss × Δt`. With 1-minute steps, `Δt = 1/60` h. |
+| SOC | % | Energy stored in the battery as a percentage of its capacity. |
+| Line loading | % | Line current relative to its rated maximum. Above 100 % means the thermal limit is exceeded. |
+| Constraint violation | count, type | A calculated value outside its configured limit at a timestep, recorded with component, actual value and limit. |
+
+Instantaneous kW and cumulative kWh must not be compared directly. See [section 6.2](#62-electrical-quantities).
+
+### Power Loss Analytics
+
+Shows active power loss in each of the five feeder lines (`LINE_01`–`LINE_05`), the total active loss (kW) at the selected timestep and the cumulative energy loss (kWh).
+
+![Power Loss Analytics](docs/images/power_loss_analytics.png)
+
+*Interpretation.* Losses scale with current squared, so peaks coincide with heavy load or strong reverse flow at high PV. A line with a persistently larger curve carries more current. Read kW at a timestep and kWh over a period as separate quantities. *Data needed:* per-line loss (kW) per timestep from the stored history. *Simulation-derived, not measured.* Interactive view: run the application locally ([instructions](#opening-the-interactive-dashboard)).
+
+### Voltage Profile Heatmap
+
+Shows `BUS_01`–`BUS_06` (or the bus IDs verified in `network.py`) across simulation time, with 0.95 pu, 1.00 pu and 1.05 pu reference levels and violations highlighted.
+
+![Voltage Profile Heatmap](docs/images/voltage_profile_heatmap.png)
+
+*Interpretation.* Voltage normally falls with distance from the substation under load and rises near PV at midday. Cells below 0.95 pu indicate low voltage; above 1.05 pu indicate high voltage, typically from PV export at low load. A non-converged timestep must be shown as missing, not as a colour. *Data needed:* per-bus voltage (pu) per timestep from the power-flow results. *Simulation-derived, not measured.* Interactive view: [instructions](#opening-the-interactive-dashboard).
+
+### Baseline vs DER Comparison
+
+Compares the baseline case with the Solar + Battery case: minimum voltage, voltage violations, maximum line loading, transformer loading, power losses, grid import and export energy, and converged timesteps.
+
+![Baseline vs DER Comparison](docs/images/baseline_vs_der_comparison.png)
+
+*Interpretation.* Both cases use the same network and time series, so differences are attributable to the DER. Lower import with higher export shows the DER offsetting demand; a rise in maximum voltage or a new violation shows a side effect. Only metrics supplied by `comparison.py` should appear. *Data needed:* baseline and DER results with the change for each metric. *Simulation-derived, not measured.* Interactive view: [instructions](#opening-the-interactive-dashboard).
+
+### Battery Analytics
+
+Shows battery SOC (%) over time with the selected timestep, plus charge/discharge power and dispatch mode where those fields exist.
+
+![Battery Analytics](docs/images/battery_analytics_soc.png)
+
+*Interpretation.* SOC rises while the battery is in `CHARGE` and falls in `DISCHARGE`; flat sections correspond to `IDLE` or to a limit being reached. SOC limits, where configured, bound the curve. Power (kW) sets how fast SOC changes; energy capacity (kWh) sets how long it can be sustained. *Data needed:* SOC, power and mode per timestep from the battery history. *Simulation-derived, not measured.* Interactive view: [instructions](#opening-the-interactive-dashboard).
+
+### Violation History
+
+Shows constraint-event counts over time, with type (`HIGH_VOLTAGE`, `LOW_VOLTAGE`, `LINE_OVERLOAD`, `TRANSFORMER_OVERLOAD` where implemented), affected component, actual value and limit.
+
+![Violation History](docs/images/voltage_violation_history.png)
+
+*Interpretation.* A count of zero means the solver converged and no limit was exceeded, which is different from a timestep that failed to converge or has no data; the two must be shown differently. Clusters of events around midday point to PV-driven high voltage, evening clusters to load-driven low voltage or overload. *Data needed:* violation records (timestamp, type, component ID, actual value, limit). *Simulation-derived, not measured.* Interactive view: [instructions](#opening-the-interactive-dashboard).
+
+### Opening the interactive dashboard
+
+The interactive charts are part of the frontend and need a running backend with a completed simulation:
 
 ```powershell
+# Terminal 1: backend (from the repository root, venv active)
 py -m uvicorn app.main:app --app-dir backend --reload
-```
 
-A typical backend address is:
-
-```text
-http://127.0.0.1:8000
-```
-
-FastAPI's interactive documentation is typically available at:
-
-```text
-http://127.0.0.1:8000/docs
-```
-
-> [!NOTE]
-> These URLs depend on the current project configuration and should not be treated as guaranteed if ports or server settings have been changed.
-
----
-
-# 💻 Running the Frontend
-
-Install frontend dependencies:
-
-```powershell
+# Terminal 2: frontend
 pnpm install
-```
-
-Start the development server:
-
-```powershell
 pnpm dev
 ```
 
-A typical frontend address is:
+Open the frontend address (typically `http://localhost:3000`), upload `solar.csv` and `load.csv`, run the simulation, then open the analytics panels.
 
-```text
-http://localhost:3000
+Documented: the timeline and `selectedTimestepIndex` drive the 3D twin, KPIs and single-timestep analytics, and history is cached so scrubbing reads stored results without re-running the power flow.
+
+`VERIFY` in the source before advertising any of the following, since none is confirmed by the available documentation:
+
+- Hover tooltips with timestamp, timestep index, component ID, value and unit.
+- Clicking a chart point or heatmap cell to select its timestep (and bus).
+- A synchronized selected-timestep marker on every time-series chart.
+- Explicit states for non-converged timesteps, unavailable data and missing measurements, with no interpolated or invented values drawn.
+
+### Regenerating the figures
+
+Run a simulation, export the stored history, and regenerate each figure from it with Matplotlib (white background, labelled axes with units, legend), overwriting the five files in `docs/images/`. The sample input profiles (input data, not results) are in [`docs/images/input_profiles.png`](docs/images/input_profiles.png).
+
+---
+
+## 13. 3D digital twin
+
+Built with React, Three.js and React Three Fiber, using GLB/GLTF models. The scene represents houses (loads), solar panels and farms, battery, transformer, substation, buses and distribution lines.
+
+- **Interaction:** rotate, pan, zoom, select, inspect, focus on a component.
+- **Animated power flow:** flow lines follow calculated branch flow.
+- **Colour state:** green `NORMAL`, yellow `WARNING`, red `CRITICAL`, derived from calculated loading or voltage against configured limits (see [section 8](#8-violation-detection-and-convergence-handling)).
+
+The scene is a schematic spatial layout. Distances in the scene are not to scale with line lengths in the model.
+
+---
+
+## 14. Input data
+
+GridTwin uses two time-series files:
+
+| File | Represents |
+|---|---|
+| `solar.csv` | Generation |
+| `load.csv` | Consumption |
+
+Both are validated and aligned by `backend/app/services/csv_service.py` before simulation.
+
+**Schema** (from the sample `load.csv` and `solar.csv`)
+
+| File | Columns | Type | Unit | Rows |
+|---|---|---|---|---|
+| `load.csv` | `Time`, `load_kw` | text `HH:MM`, decimal | kW | 1440 |
+| `solar.csv` | `Time`, `solar_kw` | text `HH:MM`, decimal | kW | 1440 |
+
+```csv
+Time,load_kw          Time,solar_kw
+00:00,94.73           00:00,0.0
+00:01,94.65           00:01,0.0
+00:02,94.61           00:02,0.0
 ```
 
-> [!NOTE]
-> The actual frontend port depends on the project's current configuration.
+**Properties of the sample files** (measured directly from them):
 
----
+| Property | `load.csv` | `solar.csv` |
+|---|---|---|
+| Timestep | 1 minute, all 1439 intervals | 1 minute, all 1439 intervals |
+| Coverage | `00:00`–`23:59` (one day) | `00:00`–`23:59` (one day) |
+| Missing or duplicate times | none | none |
+| Negative values | none | none |
+| Minimum | 73.49 kW at 03:47 | 0.0 kW (night) |
+| Maximum | 180.0 kW at 19:11 | 190.0 kW at 12:28 |
+| Daily energy (`Σ P/60`) | 2983.4 kWh | 1512.3 kWh |
 
-# 🧭 Using GridTwin
+The `Time` columns are identical in both files. Solar is non-zero from 05:31 to 19:29, and solar power exceeds load power in 340 of the 1440 minutes. That is a comparison of the two input series only. It says nothing about voltages or flows, which come from the power flow. The input plot is available as [`docs/images/input_profiles.png`](docs/images/input_profiles.png) (input data, not a simulation result).
 
-A typical GridTwin workflow is:
+**Validation rules.** The properties above describe the sample files. Which of them `csv_service.py` actually enforces (required headers, time format, ordering, non-negativity, equal length) is `VERIFY`. Do not document a rule as enforced until it is confirmed in the code.
 
-### 1. Start the backend
+Inspect your own files the same way:
 
-Run the FastAPI server.
-
-### 2. Start the frontend
-
-Run the React development server.
-
-### 3. Load simulation data
-
-Provide the configured:
-
-```text
-solar.csv
-load.csv
+```powershell
+Get-Content solar.csv -TotalCount 5
+Get-Content load.csv -TotalCount 5
 ```
 
-### 4. Run the simulation
+**Timestep handling.** Timesteps come from the aligned timestamps and are minute-level per the project scope. The sample files use 1440 rows, so timestep indices run from 0 to 1439 for `00:00`–`23:59`. Because `Time` has no date, the sample files describe one day. How mismatched ranges are handled (reject, trim, resample) is defined in `csv_service.py` (`VERIFY`).
 
-The backend processes the input data and runs the electrical simulation.
-
-### 5. Open the digital twin
-
-Inspect the network in the interactive 3D environment.
-
-### 6. Select a component
-
-Click a component to inspect its details.
-
-### 7. Navigate through time
-
-Use the timeline to move through the simulation.
-
-### 8. Inspect analytics
-
-Review:
-
-* Voltage
-* Line loading
-* Power loss
-* Battery state
-* Violations
-* Historical information
----
-
-# 🔌 API Overview
-
-The backend is based on FastAPI.
-
-The exact endpoint names depend on the current implementation and should be documented from the actual backend routes rather than assumed.
-
-A typical conceptual API surface may include areas such as:
-
-| API Area    | Purpose                              |
-| ----------- | ------------------------------------ |
-| Simulation  | Run or retrieve simulation results   |
-| History     | Retrieve historical timestep results |
-| Components  | Retrieve component information       |
-| Analytics   | Retrieve calculated analytics        |
-| Weather     | Retrieve weather context             |
-| Constraints | Retrieve detected violations         |
-| What-If     | Run supported scenarios              |
-
-> [!NOTE]
-> Endpoint names and request/response schemas are intentionally not invented here. Refer to the current FastAPI implementation and `/docs` for the authoritative API contract.
-
----
-
-# 📌 Current Scope
-
-The current GridTwin concept includes:
-
-* Interactive 3D grid visualization
-* Electrical power-flow simulation
-* Pandapower integration
-* Solar time-series input
-* Load time-series input
-* BESS representation
-* Weather context
-* Minute-level simulation
-* Shared selected timestep
-* Constraint detection
-* Power-loss analysis
-* Historical analysis
-* What-If analysis
-* Baseline vs DER comparison
-
-The exact availability of each feature depends on the current implementation in the repository.
-
-# 🛣️ Future Roadmap
-
-| Stage        | Capabilities                                                                                                                                             |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **CURRENT**  | 3D Twin, Pandapower, Solar, Load, BESS, Weather, Time-Series Simulation, Constraint Detection, Power Loss, Historical Analysis, What-If, Baseline vs DER |
-| **ADVANCED** | Battery optimization, Solar curtailment optimization, Voltage optimization, Loss minimization                                                            |
-| **FUTURE**   | SCADA, IoT, Smart Meters, Real-Time Data, Machine Learning, Predictive Constraint Detection                                                              |
-
----
-# 🛰️ Real-Time Architecture
-
-The long-term concept for GridTwin is to connect the digital twin with real-world grid data.
-
-```mermaid
-flowchart LR
-    subgraph PHYSICAL["Physical Layer"]
-        GRID["Physical Grid"]
-    end
-
-    subgraph SENSING["Sensing"]
-        SCADA["SCADA"]
-        IOT["IoT"]
-        METERS["Smart Meters"]
-    end
-
-    subgraph PLATFORM["GridTwin Platform"]
-        DATA["Real-Time Data"]
-        SIM["Simulation"]
-        ANA["Analytics"]
-        OPT["Optimization"]
-    end
-
-    subgraph EXPERIENCE["Decision Support"]
-        TWIN["3D Digital Twin"]
-        HUMAN["Human Decision"]
-    end
-
-    GRID --> SCADA
-    GRID --> IOT
-    GRID --> METERS
-
-    SCADA --> DATA
-    IOT --> DATA
-    METERS --> DATA
-
-    DATA --> SIM
-    SIM --> ANA
-    ANA --> OPT
-    OPT --> TWIN
-    TWIN --> HUMAN
-```
-
-> [!WARNING]
-> This is a **future architecture**. It does not imply that GridTwin currently has direct SCADA, IoT, smart-meter, or utility control integration.
-
----
-
-# 🤖 Predictive Intelligence
-
-A future version of GridTwin could use historical and real-time data to identify patterns before a configured constraint occurs.
-
-Potential workflow:
-
-```mermaid
-flowchart LR
-    subgraph SOURCES["Data"]
-        HIST["Historical Simulation"]
-        REAL["Real-Time Data"]
-    end
-
-    subgraph INTEL["Predictive Layer"]
-        FEAT["Feature Extraction"]
-        MODEL["ML Model"]
-    end
-
-    subgraph OUTPUT["Outputs"]
-        PRED["Predicted Constraint"]
-        ACTION["Potential Action"]
-    end
-
-    subgraph HUMAN["Human Review"]
-        REVIEW["Decision Support"]
-    end
-
-    HIST --> FEAT
-    REAL --> FEAT
-    FEAT --> MODEL
-    MODEL --> PRED
-    MODEL --> ACTION
-    PRED --> REVIEW
-    ACTION --> REVIEW
-```
-
-# 🧠 Electrical Concepts at a Glance
-
-| Concept     | Simple Explanation                                             |
-| ----------- | -------------------------------------------------------------- |
-| Power Flow  | How electrical power moves through the network                 |
-| Voltage     | Electrical potential measured at modeled network points        |
-| Bus         | Electrical connection point in the model                       |
-| Line        | Connection that carries power between buses                    |
-| Transformer | Changes voltage levels                                         |
-| Load        | Electricity consumption                                        |
-| Solar       | Distributed renewable generation                               |
-| BESS        | Battery energy storage                                         |
-| SOC         | Amount of usable battery energy currently stored               |
-| DER         | Distributed Energy Resource                                    |
-| Constraint  | A calculated value approaching or exceeding a configured limit |
-| Power Loss  | Electrical power/energy lost in network elements               |
-
----
-
-
-# 🔄 End-to-End Concept
-
-```mermaid
-flowchart LR
-    subgraph INPUT["Inputs"]
-        S["Solar"]
-        L["Load"]
-        W["Weather"]
-    end
-
-    subgraph ENGINE["Electrical Simulation"]
-        DATA["Process Data"]
-        GRID["Grid Model"]
-        PP["Pandapower"]
-    end
-
-    subgraph ANALYSIS["Analysis"]
-        R["Results"]
-        C["Constraints"]
-        LOSS["Losses"]
-        HIST["History"]
-    end
-
-    subgraph UI["GridTwin UI"]
-        T["3D Twin"]
-        TL["Timeline"]
-        A["Analytics"]
-        I["Inspector"]
-    end
-
-    S --> DATA
-    L --> DATA
-    W --> DATA
-
-    DATA --> GRID
-    GRID --> PP
-    PP --> R
-
-    R --> C
-    R --> LOSS
-    R --> HIST
-
-    HIST --> T
-    HIST --> TL
-    HIST --> A
-    HIST --> I
-
-    C --> A
-    LOSS --> A
-```
-
----
-
-# 📋 Component Reference
-
-| Component   | Role                             | Example Information   |
-| ----------- | -------------------------------- | --------------------- |
-| House       | Represents consumption           | Load                  |
-| Solar Panel | Represents solar generation      | Solar power           |
-| Solar Farm  | Represents larger generation     | Generated power       |
-| Battery     | Represents energy storage        | SOC, charge/discharge |
-| Bus         | Electrical connection point      | Voltage               |
-| Line        | Carries power between buses      | Flow, loading, losses |
-| Transformer | Changes voltage levels           | Loading, flow         |
-| Substation  | Represents a major network point | Network connection    |
-
----
-
-# 📊 Analytics Reference
-
-| Analytics           | Primary Question                                |
-| ------------------- | ----------------------------------------------- |
-| Voltage Profile     | Where are voltage conditions changing?          |
-| Line Loading        | Which lines are heavily loaded?                 |
-| Power Loss          | Where are simulated losses occurring?           |
-| Battery Analytics   | What is the battery doing?                      |
-| Violation History   | When and where did constraints occur?           |
-| Historical Analysis | How did the network change over time?           |
-| Baseline vs DER     | How does the DER scenario differ from baseline? |
-
----
-
-# 🚨 Constraint Reference
-
-| Constraint           | Example Condition                                              |
-| -------------------- | -------------------------------------------------------------- |
-| Low Voltage          | Calculated voltage below configured threshold                  |
-| High Line Loading    | Calculated line loading approaches or exceeds configured limit |
-| Transformer Overload | Calculated transformer loading exceeds configured limit        |
-
-The actual thresholds depend on the configured network model and implementation.
-
----
-
-# 🔋 BESS State Reference
-
-| State       | Description                                  |
-| ----------- | -------------------------------------------- |
-| `CHARGE`    | Battery stores energy                        |
-| `IDLE`      | Battery is not actively charging/discharging |
-| `DISCHARGE` | Battery supplies stored energy               |
-
----
-# System Architecture
-```mermaid
-
-flowchart TB
-
-    subgraph INPUT["📥 INPUT DATA"]
-        SOLAR["☀️ Solar CSV"]
-        LOAD["🏠 Load CSV"]
-        WEATHER["🌦️ Weather API"]
-    end
-
-    subgraph BACKEND["🐍 FASTAPI BACKEND"]
-        API["REST API"]
-        DATA["Data Processing"]
-        SIM["Simulation Engine"]
-        PP["⚡ Pandapower"]
-        HISTORY["🕐 Simulation History"]
-        WHATIF["🧪 What-If Engine"]
-        VIOLATION["🚨 Constraint Detection"]
-        LOSS["📉 Loss Calculation"]
-    end
-
-    subgraph FRONTEND["⚛️ REACT FRONTEND"]
-        UI["Dashboard"]
-        TWIN["🌐 3D Digital Twin"]
-        TIMELINE["🎞️ Timeline"]
-        ANALYTICS["📊 Analytics"]
-        INSPECTOR["🔎 Component Inspector"]
-    end
-
-    SOLAR --> API
-    LOAD --> API
-    WEATHER --> API
-
-    API --> DATA
-    DATA --> SIM
-    SIM --> PP
-
-    PP --> HISTORY
-    PP --> VIOLATION
-    PP --> LOSS
-
-    HISTORY --> UI
-    VIOLATION --> UI
-    LOSS --> UI
-
-    PP --> WHATIF
-
-    UI --> TWIN
-    UI --> TIMELINE
-    UI --> ANALYTICS
-    UI --> INSPECTOR
-```
-# 🔎 GridTwin at a Glance
-
-| Capability           | Purpose                                           |
-| -------------------- | ------------------------------------------------- |
-| 3D Digital Twin      | Visual representation of the distribution network |
-| Power Flow           | Calculates electrical operating conditions        |
-| Solar Time Series    | Represents distributed renewable generation       |
-| Load Time Series     | Represents electricity consumption                |
-| Weather              | Provides environmental context                    |
-| BESS                 | Represents battery storage behavior               |
-| Timeline             | Moves through minute-level simulation history     |
-| Constraint Detection | Identifies configured electrical limits           |
-| Power Loss Analytics | Examines simulated electrical losses              |
-| Historical Analysis  | Inspects previously calculated timesteps          |
-| What-If Analysis     | Tests changes without modifying the baseline      |
-| Baseline vs DER      | Compares original and DER scenarios               |
-
----
-
-# 🏗️ Architecture
-
-## Overall Architecture
-
-```mermaid
-flowchart LR
-    subgraph INPUT["Input Data"]
-        SOLAR["Solar CSV"]
-        LOAD["Load CSV"]
-        WEATHER["Weather API"]
-    end
-
-    subgraph BACKEND["FastAPI Backend"]
-        API["FastAPI"]
-        PROCESS["Data Processing"]
-        GRID["Grid Model"]
-        PP["Pandapower"]
-        HISTORY["Simulation History"]
-        CHECK["Constraint Detection"]
-        LOSS["Power Loss"]
-        WHATIF["What-If Scenarios"]
-    end
-
-    subgraph FRONTEND["React Frontend"]
-        UI["Application UI"]
-        TWIN["3D Digital Twin"]
-        TIME["Timeline"]
-        ANALYTICS["Analytics"]
-        INSPECT["Component Inspector"]
-    end
-
-    SOLAR --> PROCESS
-    LOAD --> PROCESS
-    WEATHER --> PROCESS
-
-    PROCESS --> GRID
-    API --> PROCESS
-    GRID --> PP
-
-    PP --> HISTORY
-    PP --> CHECK
-    PP --> LOSS
-    PP --> WHATIF
-
-    HISTORY --> UI
-    CHECK --> UI
-    LOSS --> UI
-    WHATIF --> UI
-
-    UI --> TWIN
-    UI --> TIME
-    UI --> ANALYTICS
-    UI --> INSPECT
-```
-
----
-
-## Simulation Flow
-
-```mermaid
-flowchart LR
-    subgraph INPUT["Inputs"]
-        S["Solar CSV"]
-        L["Load CSV"]
-        W["Weather"]
-    end
-
-    subgraph SIM["Simulation"]
-        P["Data Processing"]
-        G["Build Grid"]
-        PP["Pandapower"]
-    end
-
-    subgraph RESULTS["Results"]
-        R["Electrical Results"]
-        H["History"]
-        V["Violations"]
-        LS["Losses"]
-    end
-
-    subgraph UI["Visualization"]
-        F["Frontend"]
-    end
-
-    S --> P
-    L --> P
-    W --> P
-    P --> G
-    G --> PP
-    PP --> R
-
-    R --> H
-    R --> V
-    R --> LS
-
-    H --> F
-    V --> F
-    LS --> F
-```
----
-
-## Data Flow
-
-```mermaid
-flowchart LR
-    subgraph DATA["Source Data"]
-        SOLAR["Solar"]
-        LOAD["Load"]
-        WEATHER["Weather"]
-    end
-
-    subgraph PROCESS["Processing"]
-        NORMALIZE["Prepare Time Series"]
-        MODEL["Apply Grid Inputs"]
-    end
-
-    subgraph ENGINE["Electrical Engine"]
-        PF["Pandapower"]
-    end
-
-    subgraph OUTPUT["Simulation Outputs"]
-        VOLT["Voltage"]
-        FLOW["Power Flow"]
-        LOADING["Loading"]
-        LOSS["Losses"]
-        VIOL["Violations"]
-        BATT["Battery State"]
-    end
-
-    SOLAR --> NORMALIZE
-    LOAD --> NORMALIZE
-    WEATHER --> NORMALIZE
-
-    NORMALIZE --> MODEL
-    MODEL --> PF
-
-    PF --> VOLT
-    PF --> FLOW
-    PF --> LOADING
-    PF --> LOSS
-    PF --> VIOL
-    PF --> BATT
-```
-
----
-
-## Timeline Synchronization
-
-GridTwin uses one canonical simulation position:
-
-```text
-selectedTimestepIndex
-```
-
-Every historical visualization should derive its state from this selected index.
-
-```mermaid
-flowchart TB
-    T["selectedTimestepIndex"]
-
-    subgraph VIS["Synchronized Views"]
-        D["3D Twin"]
-        C["Component Details"]
-        K["KPIs"]
-        B["Battery"]
-    end
-
-    subgraph ANA["Analytics"]
-        P["Power Loss"]
-        V["Voltage Profile"]
-        H["Violations"]
-        HA["Historical Analysis"]
-    end
-
-    T --> D
-    T --> C
-    T --> K
-    T --> B
-    T --> P
-    T --> V
-    T --> H
-    T --> HA
-```
-
-## Constraint Detection
-
-```mermaid
-flowchart TB
-    R["Power Flow Result"]
-    C["Constraint Check"]
-
-    subgraph STATES["Electrical State"]
-        N["NORMAL"]
-        W["WARNING"]
-        CR["CRITICAL"]
-    end
-
-    E["Violation Event"]
-    A["Analytics"]
-
-    R --> C
-    C --> N
-    C --> W
-    C --> CR
-
-    CR --> E
-    W --> E
-    E --> A
-```
-
-The exact state should be derived from **calculated values compared against configured limits**, rather than from arbitrary frontend colors.
-
----
-
-## What-If Analysis
-
-```mermaid
-flowchart TB
-    B["Baseline Grid"]
-    S["Scenario Copy"]
-    A["Apply Action"]
-    P["Run Pandapower"]
-    R["Scenario Results"]
-    C["Constraint Check"]
-    COMP["Baseline vs Scenario"]
-
-    B --> S
-    S --> A
-    A --> P
-    P --> R
-    R --> C
-    C --> COMP
-```
-
-The baseline network remains unchanged while the scenario operates on a copy.
-
----
-
-## Future Real-Time Architecture
-
-> [!IMPORTANT]
-> The following architecture represents a **future roadmap**, not a claim that GridTwin currently implements utility-grade real-time operation.
-
-```mermaid
-flowchart LR
-    subgraph GRID["Physical Grid"]
-        PG["Physical Grid"]
-    end
-
-    subgraph FIELD["Field Data"]
-        SCADA["SCADA / IoT"]
-        METERS["Smart Meters"]
-    end
-
-    subgraph DATA["Real-Time Layer"]
-        RT["Real-Time Data"]
-    end
-
-    subgraph GT["GridTwin"]
-        SIM["Simulation"]
-        ANA["Analytics"]
-        OPT["Optimization"]
-    end
-
-    subgraph HUMAN["Decision Layer"]
-        TWIN["3D Digital Twin"]
-        DEC["Human Decision"]
-    end
-
-    PG --> SCADA
-    PG --> METERS
-    SCADA --> RT
-    METERS --> RT
-
-    RT --> SIM
-    SIM --> ANA
-    ANA --> OPT
-    OPT --> TWIN
-    TWIN --> DEC
-```
-
----
-
-## Future Predictive Intelligence
-
-```mermaid
-flowchart LR
-    HIST["Historical Simulation"]
-    LIVE["Future Real-Time Data"]
-    FEATURES["Feature Extraction"]
-    ML["Predictive Intelligence"]
-    PRED["Predicted Constraints"]
-    REC["Recommended Actions"]
-    USER["Human Decision"]
-
-    HIST --> FEATURES
-    LIVE --> FEATURES
-    FEATURES --> ML
-    ML --> PRED
-    ML --> REC
-    PRED --> USER
-    REC --> USER
-```
-
-This represents a future architecture for predictive constraint detection and decision support.
-
----
-
-# ⚙️ How the System Works
-
-At a high level, GridTwin follows these stages:
-
-1. Load solar and load time-series data.
-2. Obtain weather information when configured.
-3. Process the input data.
-4. Build or populate the electrical network model.
-5. Run power-flow calculations using Pandapower.
-6. Store calculated simulation results.
-7. Check configured electrical constraints.
-8. Calculate power-flow and loss information.
-9. Expose the results to the frontend.
-10. Synchronize the visual state with `selectedTimestepIndex`.
-11. Display the selected state through the 3D digital twin and analytics.
-12. Allow scenario analysis without modifying the baseline network.
-
----
-
-# 🌐 3D Digital Twin
-
-GridTwin represents the distribution network through interactive 3D assets.
-
-The visual environment can contain concepts such as:
-
-| Component           | Simple explanation                                     |
-| ------------------- | ------------------------------------------------------ |
-| 🏠 House            | Represents an electricity-consuming location or load   |
-| ☀️ Solar Panel      | Represents distributed solar generation                |
-| ☀️ Solar Farm       | Represents a larger solar-generation source            |
-| 🔋 Battery          | Represents energy storage                              |
-| 🔌 Transformer      | Changes electrical voltage levels                      |
-| 🏭 Substation       | Represents a major point in the distribution network   |
-| ⚡ Electrical Bus    | Represents an electrical connection point in the model |
-| ─ Distribution Line | Connects electrical buses and carries power            |
-
-The 3D assets can be represented using **GLB/GLTF models**.
-
-### Interaction
-
-Users can:
-
-* Rotate the scene
-* Pan the scene
-* Zoom
-* Select components
-* Inspect components
-* View component details
-* Focus or zoom into selected components
-
-The purpose of the 3D environment is not merely visual decoration. It provides a spatial interface for understanding where electrical components and conditions occur within the modeled network.
-
----
-
-# 🔋 Animated Power Flow
-
-Electrical connections can be represented through animated flow lines.
-
-The animation communicates the direction or movement of electrical power through the modeled network.
-
-The visual state should be derived from calculated electrical values and configured thresholds.
-
-| State     | Visual meaning                         |
-| --------- | -------------------------------------- |
-| 🟢 Green  | Normal operating condition             |
-| 🟡 Yellow | Warning / approaching configured limit |
-| 🔴 Red    | Critical / configured limit exceeded   |
-
-These colors are therefore not arbitrary decoration.
-
-For example, a line's visual state can be determined from its calculated loading percentage compared with the configured operating limit
-
----
-
-# 🎛️ Timeline
-
-The timeline provides navigation through the simulation history.
-
-Supported controls include:
-
-| Control    | Purpose                            |
-| ---------- | ---------------------------------- |
-| ▶ Play     | Advance through simulation history |
-| ⏸ Pause    | Stop playback                      |
-| ◀ Previous | Move to the previous timestep      |
-| ▶ Next     | Move to the next timestep          |
-| Slider     | Scrub through the simulation       |
-| Speed      | Control playback speed             |
-
----
-# 🌦️ Weather
-
-GridTwin can retrieve live weather information through a weather API.
-
-Example fields include:
-
-| Field                   | Meaning                   |
-| ----------------------- | ------------------------- |
-| `temperature_c`         | Temperature in Celsius    |
-| `cloud_cover_percent`   | Cloud coverage percentage |
-| `solar_irradiance_w_m2` | Solar irradiance          |
-| `humidity_percent`      | Relative humidity         |
-| `wind_speed_m_s`        | Wind speed                |
-
-Example response:
+**Weather.** Optional context from a weather provider through `weather.py`:
 
 ```json
 {
@@ -1859,318 +591,331 @@ Example response:
 }
 ```
 
-Weather provides environmental context and can potentially influence renewable-generation scenarios.
+This is an example response shape, not measured data from a specific site. Behaviour on provider failure or missing key (demo mode or error) is `VERIFY`.
 
-## Weather API Configuration
+Provenance: `solar.csv` and `load.csv` values are whatever the user supplies. Record the source and licence of any dataset you commit to the repository.
 
-Create:
+---
 
-```text
-backend/.env
+## 15. IEEE 33-bus reference
+
+GridTwin's own model is the small prototype feeder in [section 5](#5-network-model). The IEEE 33-bus system is a different network. A **separate, external repository** implements it with pandapower; it is cited here as a methodological reference, and its results are its own.
+
+**Reference:** [Chinmaya-J-Jena/der_load_flow_IEEE33bus](https://github.com/Chinmaya-J-Jena/der_load_flow_IEEE33bus) (MIT). **Status: Reference.** GridTwin does not reproduce or validate these numbers.
+
+```mermaid
+flowchart LR
+    D["IEEE 33-bus data<br/>Baran and Wu network"] --> PP["pandapower<br/>Newton-Raphson"]
+    D --> PS["PSS/E v33<br/>Newton-Raphson"]
+    PP --> CMP["Compare bus voltages"]
+    PS --> CMP
+    CMP --> OK["Reported max difference 0.0001 pu"]
+    PP --> DER["Add PV, BESS, EV<br/>24 h time series"]
+    DER --> R["Voltage, loss, violation plots"]
 ```
 
-Add:
+**What the reference repository reports** (from its README; not independently reproduced here):
+
+| Item | Value reported by the reference repository |
+|---|---|
+| Network | IEEE 33-bus radial, base voltage 12.66 kV, base load 3.715 MW + j2.300 MVAr |
+| Base case min / max voltage | 0.9131 pu (bus 18) / 1.0000 pu (bus 1) |
+| Buses below 0.95 pu, base case | 21 |
+| Base case active loss | 0.2027 MW |
+| pandapower vs PSS/E | All 33 buses within 0.0001 pu |
+| DER assets | PV 2.0 MW at buses 14 and 31; BESS 0.5 MW / 2.0 MWh at bus 31; EV 1.5 MW at bus 28 |
+| BESS rule | Charge when PV > 30 % of rating and SOC < 90 %, 06:00–15:00; discharge SOC > 20 %, 18:00–22:00; efficiency 95 % |
+| With DER | Min voltage 0.9405 pu (bus 29); buses below 0.95 pu: 6 |
+
+Limitations of that evidence: the PSS/E case is proprietary and the comparison covers the base case only; the DER results come from rule-based dispatch on a specific 24-hour profile.
+
+**Reproduce the reference results** (commands from that repository; the PSS/E comparison needs its saved case file):
+
+```powershell
+git clone https://github.com/Chinmaya-J-Jena/der_load_flow_IEEE33bus.git
+cd der_load_flow_IEEE33bus
+py -m pip install -r requirements.txt
+py src\main.py
+py src\compare_psse_pandapower.py
+```
+
+**Prototype feeder vs IEEE 33-bus**
+
+| | GridTwin prototype | IEEE 33-bus (reference repo) |
+|---|---|---|
+| Purpose | Interactive 3D twin demonstration | Load-flow and DER research benchmark |
+| Size | Small radial feeder (`VERIFY` bus count) | 33 buses |
+| Front end | React 3D UI | Matplotlib plots |
+| Validated against | No external validation claimed | PSS/E (base case, per that repo) |
+
+Any future GridTwin-native IEEE 33-bus benchmark should publish its own commands, data source and results before being described as validated. See [Roadmap](#24-roadmap).
+
+---
+
+## 16. Technology stack and repository structure
+
+| Layer | Technology |
+|---|---|
+| Frontend | React, TypeScript, Vite, pnpm |
+| 3D | Three.js, React Three Fiber, GLB/GLTF |
+| Backend | Python, FastAPI, Uvicorn |
+| Power system | pandapower |
+| Data | pandas, NumPy |
+| External | Weather provider API |
+
+Exact versions: see `backend/requirements.txt` and `package.json` (`VERIFY`: record the Python and Node versions the project supports).
+
+```text
+backend/
+  requirements.txt
+  .env                     # local only, not committed
+  app/
+    main.py                # FastAPI routes, history and loss analytics
+    services/
+      csv_service.py       # CSV validation and alignment
+      weather.py           # weather provider client
+    simulation/
+      network.py           # pandapower network construction
+      powerflow.py         # power-flow execution
+      timestep.py          # per-timestep runner
+      battery.py           # battery dispatch
+      results.py           # result extraction
+      violations.py        # constraint detection
+      comparison.py        # baseline vs DER
+      whatif.py            # scenario analysis
+client/
+  src/
+    lib/api.ts             # API client
+    pages/Home.tsx         # dashboard, timeline, analytics
+    components/digital-twin/DigitalTwin.tsx   # 3D scene
+docs/
+  images/                  # analytics figures and input profile plot
+```
+
+| Path | Responsibility |
+|---|---|
+| [`backend/app/main.py`](backend/app/main.py) | HTTP interface, orchestration, history |
+| [`backend/app/services/csv_service.py`](backend/app/services/csv_service.py) | Input validation |
+| [`backend/app/services/weather.py`](backend/app/services/weather.py) | Weather context |
+| [`backend/app/simulation/network.py`](backend/app/simulation/network.py) | Network model |
+| [`backend/app/simulation/powerflow.py`](backend/app/simulation/powerflow.py) | AC power flow |
+| [`backend/app/simulation/timestep.py`](backend/app/simulation/timestep.py) | Time-series loop |
+| [`backend/app/simulation/battery.py`](backend/app/simulation/battery.py) | Battery logic |
+| [`backend/app/simulation/results.py`](backend/app/simulation/results.py) | Result assembly |
+| [`backend/app/simulation/violations.py`](backend/app/simulation/violations.py) | Limits and severity |
+| [`backend/app/simulation/comparison.py`](backend/app/simulation/comparison.py) | Baseline vs DER |
+| [`backend/app/simulation/whatif.py`](backend/app/simulation/whatif.py) | What-If |
+| [`client/src/lib/api.ts`](client/src/lib/api.ts) | Frontend API access |
+| [`client/src/pages/Home.tsx`](client/src/pages/Home.tsx) | Main UI |
+| [`client/src/components/digital-twin/DigitalTwin.tsx`](client/src/components/digital-twin/DigitalTwin.tsx) | 3D twin |
+
+Additional modules for the **Unverified** features (Network Builder, State Estimation, Short-Circuit, SCADA-style view, Dataset Creator) are not listed because none appear in the documented structure. Add them here only when they exist.
+
+---
+
+## 17. Installation and running
+
+**Prerequisites:** Python, Node.js, pnpm, Git. `VERIFY` minimum versions.
+
+### Backend (Windows PowerShell)
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+py -m pip install -r backend\requirements.txt
+```
+
+If script execution is blocked, allow it for the current session only:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+### Environment variables
+
+Create `backend/.env`:
 
 ```env
 WEATHER_API_KEY=your_api_key_here
 ```
 
-> [!WARNING]
-> Never commit API keys or other secrets to GitHub.
+Never commit this file. Confirm `.env` is listed in `.gitignore`.
 
----
+### Run the backend
 
-# 🔋 BESS — Battery Energy Storage System
-
-**BESS** means **Battery Energy Storage System**.
-
-A battery can store electrical energy and later release it back into the network.
-
-GridTwin can represent three basic battery states:
-
-| State       | Meaning                                         |
-| ----------- | ----------------------------------------------- |
-| `CHARGE`    | Battery is absorbing/storing energy             |
-| `IDLE`      | Battery is not actively charging or discharging |
-| `DISCHARGE` | Battery is supplying stored energy              |
-
-# 📊 Analytics Dashboard
-
-GridTwin's analytics layer can expose several complementary views.
-
-| Analytics           | Purpose                                                    |
-| ------------------- | ---------------------------------------------------------- |
-| Voltage Profile     | Understand voltage conditions across the network           |
-| Line Loading        | Inspect utilization of distribution lines                  |
-| Power Loss          | Identify simulated electrical losses                       |
-| Battery Analytics   | Inspect SOC and charge/discharge behavior                  |
-| Violation History   | Review detected constraints over time                      |
-| Historical Analysis | Explore simulation behavior across timestamps              |
-| Baseline vs DER     | Compare original and distributed-energy-resource scenarios |
-
-All historical analytics should remain synchronized with `selectedTimestepIndex` where the metric represents a single simulation timestep.
-
----
-### Comparison Flow
-
-```mermaid
-flowchart LR
-    subgraph BASE["Baseline"]
-        B["Original Grid"]
-        BR["Baseline Results"]
-    end
-
-    subgraph DER["DER Scenario"]
-        D["Solar / Battery / DER"]
-        DR["Scenario Results"]
-    end
-
-    subgraph COMP["Comparison"]
-        V["Voltage"]
-        L["Line Loading"]
-        T["Transformer Loading"]
-        P["Power Loss"]
-        C["Violations"]
-    end
-
-    B --> BR
-    D --> DR
-
-    BR --> V
-    DR --> V
-
-    BR --> L
-    DR --> L
-
-    BR --> T
-    DR --> T
-
-    BR --> P
-    DR --> P
-
-    BR --> C
-    DR --> C
+```powershell
+py -m uvicorn app.main:app --app-dir backend --reload
 ```
 
-The comparison should use calculated simulation values rather than presentation-only values.
+Default address `http://127.0.0.1:8000`, interactive docs at `http://127.0.0.1:8000/docs`.
 
----
+### Run the frontend
 
-
-## FUTURE
-
-Future integrations may include:
-
-* SCADA
-* IoT devices
-* Smart meters
-* Real-time data streams
-* Machine learning
-* Predictive constraint detection
-
-These capabilities require additional engineering, data, security, and validation work.
-
----
-
-# 🛰️ Real-Time Architecture
-
-The long-term concept for GridTwin is to connect the digital twin with real-world grid data.
-
-```mermaid
-flowchart LR
-    subgraph PHYSICAL["Physical Layer"]
-        GRID["Physical Grid"]
-    end
-
-    subgraph SENSING["Sensing"]
-        SCADA["SCADA"]
-        IOT["IoT"]
-        METERS["Smart Meters"]
-    end
-
-    subgraph PLATFORM["GridTwin Platform"]
-        DATA["Real-Time Data"]
-        SIM["Simulation"]
-        ANA["Analytics"]
-        OPT["Optimization"]
-    end
-
-    subgraph EXPERIENCE["Decision Support"]
-        TWIN["3D Digital Twin"]
-        HUMAN["Human Decision"]
-    end
-
-    GRID --> SCADA
-    GRID --> IOT
-    GRID --> METERS
-
-    SCADA --> DATA
-    IOT --> DATA
-    METERS --> DATA
-
-    DATA --> SIM
-    SIM --> ANA
-    ANA --> OPT
-    OPT --> TWIN
-    TWIN --> HUMAN
+```powershell
+pnpm install
+pnpm dev
 ```
 
-> [!WARNING]
-> This is a **future architecture**. It does not imply that GridTwin currently has direct SCADA, IoT, smart-meter, or utility control integration.
+Typical address `http://localhost:3000`. The port depends on the Vite configuration.
 
----
+### macOS / Linux equivalents
 
-# 🤖 Predictive Intelligence
-
-A future version of GridTwin could use historical and real-time data to identify patterns before a configured constraint occurs.
-
-Potential workflow:
-
-```mermaid
-flowchart LR
-    subgraph SOURCES["Data"]
-        HIST["Historical Simulation"]
-        REAL["Real-Time Data"]
-    end
-
-    subgraph INTEL["Predictive Layer"]
-        FEAT["Feature Extraction"]
-        MODEL["ML Model"]
-    end
-
-    subgraph OUTPUT["Outputs"]
-        PRED["Predicted Constraint"]
-        ACTION["Potential Action"]
-    end
-
-    subgraph HUMAN["Human Review"]
-        REVIEW["Decision Support"]
-    end
-
-    HIST --> FEAT
-    REAL --> FEAT
-    FEAT --> MODEL
-    MODEL --> PRED
-    MODEL --> ACTION
-    PRED --> REVIEW
-    ACTION --> REVIEW
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r backend/requirements.txt
+python -m uvicorn app.main:app --app-dir backend --reload
+pnpm install && pnpm dev
 ```
 
-# 🧠 Electrical Concepts at a Glance
-
-| Concept     | Simple Explanation                                             |
-| ----------- | -------------------------------------------------------------- |
-| Power Flow  | How electrical power moves through the network                 |
-| Voltage     | Electrical potential measured at modeled network points        |
-| Bus         | Electrical connection point in the model                       |
-| Line        | Connection that carries power between buses                    |
-| Transformer | Changes voltage levels                                         |
-| Load        | Electricity consumption                                        |
-| Solar       | Distributed renewable generation                               |
-| BESS        | Battery energy storage                                         |
-| SOC         | Amount of usable battery energy currently stored               |
-| DER         | Distributed Energy Resource                                    |
-| Constraint  | A calculated value approaching or exceeding a configured limit |
-| Power Loss  | Electrical power/energy lost in network elements               |
+The project documentation covers Windows; the commands above are the standard equivalents and have not been separately confirmed.
 
 ---
-# 🔄 End-to-End Concept
 
-```mermaid
-flowchart LR
-    subgraph INPUT["Inputs"]
-        S["Solar"]
-        L["Load"]
-        W["Weather"]
-    end
+## 18. API reference
 
-    subgraph ENGINE["Electrical Simulation"]
-        DATA["Process Data"]
-        GRID["Grid Model"]
-        PP["Pandapower"]
-    end
+FastAPI generates the authoritative contract from the route declarations. Rather than hand-copy routes that may drift, list them from the running server:
 
-    subgraph ANALYSIS["Analysis"]
-        R["Results"]
-        C["Constraints"]
-        LOSS["Losses"]
-        HIST["History"]
-    end
+```powershell
+# Start the backend first, then:
+(Invoke-RestMethod http://127.0.0.1:8000/openapi.json).paths.PSObject.Properties |
+  ForEach-Object { $_.Name + "  " + (($_.Value.PSObject.Properties.Name) -join ",") }
+```
 
-    subgraph UI["GridTwin UI"]
-        T["3D Twin"]
-        TL["Timeline"]
-        A["Analytics"]
-        I["Inspector"]
-    end
+Browse request and response schemas at `http://127.0.0.1:8000/docs`.
 
-    S --> DATA
-    L --> DATA
-    W --> DATA
+`VERIFY`: replace this table with the real routes once listed.
 
-    DATA --> GRID
-    GRID --> PP
-    PP --> R
+| Method | Path | Purpose | Request | Response |
+|---|---|---|---|---|
+| `VERIFY` | `VERIFY` | Upload/validate CSVs | | |
+| `VERIFY` | `VERIFY` | Run simulation | | |
+| `VERIFY` | `VERIFY` | Get timestep / history | | |
+| `VERIFY` | `VERIFY` | Weather | | |
+| `VERIFY` | `VERIFY` | Violations, losses | | |
+| `VERIFY` | `VERIFY` | Baseline vs DER | | |
+| `VERIFY` | `VERIFY` | What-If | | |
 
-    R --> C
-    R --> LOSS
-    R --> HIST
+---
 
-    HIST --> T
-    HIST --> TL
-    HIST --> A
-    HIST --> I
+## 19. Example workflow
 
-    C --> A
-    LOSS --> A
+1. Start the backend and frontend ([section 17](#17-installation-and-running)).
+2. Open the frontend and upload `solar.csv` and `load.csv` (schema in [section 14](#14-input-data)).
+3. Run the simulation. Wait for the history to be produced.
+4. Open the 3D twin, click a component to inspect voltage, loading or SOC.
+5. Scrub the timeline. Confirm the twin, KPIs and charts change together.
+6. Open the analytics: voltage profile, loading, losses, battery, violations.
+7. Run Baseline vs DER, then a What-If action, and compare metrics.
+
+**Reproducibility.** For identical `solar.csv`, `load.csv`, network parameters and library versions, the power-flow results are deterministic. Weather is fetched live, so it will differ between runs. Record `pandapower` and Python versions with any results you publish:
+
+```powershell
+py -m pip freeze | Select-String "pandapower|numpy|pandas|fastapi"
 ```
 
 ---
 
-# 📋 Component Reference
+## 20. Screenshots
 
-| Component   | Role                             | Example Information   |
-| ----------- | -------------------------------- | --------------------- |
-| House       | Represents consumption           | Load                  |
-| Solar Panel | Represents solar generation      | Solar power           |
-| Solar Farm  | Represents larger generation     | Generated power       |
-| Battery     | Represents energy storage        | SOC, charge/discharge |
-| Bus         | Electrical connection point      | Voltage               |
-| Line        | Carries power between buses      | Flow, loading, losses |
-| Transformer | Changes voltage levels           | Loading, flow         |
-| Substation  | Represents a major network point | Network connection    |
+No application screenshots were available when this README was written. Add real captures and reference them with relative paths; do not commit mock images.
+
+| Suggested capture | Suggested path |
+|---|---|
+| 3D twin with a violation highlighted | `docs/screenshots/twin-violation.png` |
+| Timeline with voltage profile | `docs/screenshots/timeline-voltage.png` |
+| Baseline vs DER comparison | `docs/screenshots/baseline-vs-der.png` |
 
 ---
 
-# 📊 Analytics Reference
+## 21. Testing and validation
 
-| Analytics           | Primary Question                                |
-| ------------------- | ----------------------------------------------- |
-| Voltage Profile     | Where are voltage conditions changing?          |
-| Line Loading        | Which lines are heavily loaded?                 |
-| Power Loss          | Where are simulated losses occurring?           |
-| Battery Analytics   | What is the battery doing?                      |
-| Violation History   | When and where did constraints occur?           |
-| Historical Analysis | How did the network change over time?           |
-| Baseline vs DER     | How does the DER scenario differ from baseline? |
+No automated test suite or CI is documented, so no test or coverage badge is shown.
+
+**What can be claimed today:** the solver is pandapower, a widely used open-source power-flow library. **What cannot:** GridTwin has no documented external validation, and no accuracy or performance figures are claimed.
+
+Recommended checks to add and then document here:
+
+| Check | How |
+|---|---|
+| Power balance | At a converged timestep, generation − load − losses ≈ 0 within tolerance. |
+| Independent recompute | Rebuild one timestep directly in pandapower and compare voltages with the API result. |
+| Violation logic | Unit-test limit classification at, just below and just above each threshold. |
+| Failure path | Force a non-convergent case and confirm it is reported as a failure. |
+| CSV validation | Feed malformed, misaligned and empty files and confirm clear rejection. |
+| Battery bounds | Assert SOC and power never leave configured limits. |
 
 ---
-<h4>🌍 Sustainable Development Goals</h4>
 
-GridTwin aligns with the following **United Nations Sustainable Development Goals (SDGs)** through grid simulation, renewable-energy modeling, energy storage, analytics, and digital-twin technology.
+## 22. Limitations
 
-## 🎯 SDG Alignment
+- Steady-state, balanced, positive-sequence analysis only; no dynamics, harmonics, unbalance or protection modelling.
+- The prototype feeder is a simplified demonstration, not a real utility network.
+- Not connected to live SCADA, IoT, smart meters or any control system, and it issues no control commands.
+- No optimization, so results show consequences of chosen inputs and actions, not best solutions.
+- Simulated results depend on the quality and representativeness of the input CSVs.
+- Weather is contextual and live; it is not a forecast.
+- History appears to be held by the server process, so it may not persist across restarts (`VERIFY`).
+- The five analytics figures in this README are currently "Data unavailable" placeholders until regenerated from real simulation history.
+- The IEEE 33-bus results in this document are from an external repository.
 
-| SDG            | Goal                                    | GridTwin Contribution                                      |
-| -------------- | --------------------------------------- | ---------------------------------------------------------- |
-| ⚡ **SDG 7**    | Affordable and Clean Energy             | Solar, BESS, DER and clean-energy integration              |
-| 💡 **SDG 9**   | Industry, Innovation and Infrastructure | Digital twin, simulation and intelligent infrastructure    |
-| 🏙️ **SDG 11** | Sustainable Cities and Communities      | Smart-grid visualization and distribution-network analysis |
-| ♻️ **SDG 12**  | Responsible Consumption and Production  | Load, generation, storage and power-loss analysis          |
-| 🌍 **SDG 13**  | Climate Action                          | Renewable energy, storage and weather-aware scenarios      |
-
-> **GridTwin primarily aligns with SDG 7 — Affordable and Clean Energy, with supporting contributions to SDGs 9, 11, 12, and 13.**
 ---
 
+## 23. Troubleshooting
 
+| Symptom | Likely cause | Action |
+|---|---|---|
+| `Activate.ps1` cannot be loaded | PowerShell execution policy | Use the session-only policy command in [section 17](#17-installation-and-running). |
+| `ModuleNotFoundError` | Venv not active or dependencies missing | Activate `.venv`, rerun the `pip install`. |
+| `Could not import module "app.main"` | Wrong working directory | Run from the repository root with `--app-dir backend`. |
+| Frontend cannot reach the API | Backend not running or different port | Check `http://127.0.0.1:8000/docs`; check the API base URL in `client/src/lib/api.ts`. |
+| CORS error in the browser | Origin not allowed by the backend | Check CORS settings in `main.py` (`VERIFY`). |
+| Weather missing | `WEATHER_API_KEY` unset or provider error | Check `backend/.env` and provider status. |
+| CSV rejected | Header, timestamp or alignment rule violated | Compare against the schema in [section 14](#14-input-data). |
+| A timestep shows no result | Power flow did not converge | Inspect that timestep's inputs; reduce extreme injections. |
+| Port already in use | Another process on 8000 or 3000 | Stop it or pass `--port` to Uvicorn and update the client. |
 
+---
+
+## 24. Roadmap
+
+| Stage | Items |
+|---|---|
+| **Documented today** | 3D twin, pandapower, solar/load/battery, weather, time-series simulation, violations, losses, history, What-If, Baseline vs DER |
+| **To confirm** | Network Builder, State Estimation, Short-Circuit Analysis, SCADA/EMS-style view, Dataset Creator, GridTwin-native IEEE 33-bus benchmark |
+| **Planned** | Battery, curtailment, voltage and loss optimization; SCADA, IoT and smart-meter ingestion; machine-learning prediction of constraints |
+
+Real-time integration needs additional engineering, security, data-quality and validation work, and any recommendation from a future predictive layer should remain decision support with a human in the loop.
+
+---
+
+## 25. References, context and license
+
+**References**
+
+- pandapower: [pandapower.org](https://www.pandapower.org/) and Thurner et al., "pandapower — an open-source Python tool for convenient modeling, analysis, and optimization of electric power systems," *IEEE Transactions on Power Systems*, 33(6), 2018.
+- Baran, M.E. and Wu, F.F., "Network reconfiguration in distribution systems for loss reduction and load balancing," *IEEE Transactions on Power Delivery*, 4(2), 1989, pp. 1401–1407.
+- External reference implementation: [der_load_flow_IEEE33bus](https://github.com/Chinmaya-J-Jena/der_load_flow_IEEE33bus).
+
+**Sustainable Development Goals.** GridTwin's subject matter relates most directly to SDG 7 (Affordable and Clean Energy), with supporting relevance to SDGs 9, 11, 12 and 13. This describes topical alignment, not measured impact.
+
+**License.** MIT. Confirm a `LICENSE` file exists at the repository root before publishing the badge.
+
+---
+
+## Verification checklist
+
+Everything below could not be confirmed without the GridTwin source and should be filled from code, then this checklist deleted.
+
+- [ ] Six-bus topology, component IDs, transformer, line, load, PV and battery parameters ([section 5](#5-network-model)).
+- [ ] Voltage, line and transformer thresholds ([section 5](#5-network-model), [8](#8-violation-detection-and-convergence-handling)).
+- [ ] Behaviour on non-convergence ([section 4](#4-simulation-lifecycle), [8](#8-violation-detection-and-convergence-handling)).
+- [ ] Battery parameters and dispatch rule ([section 9](#9-battery-and-der-modelling)).
+- [ ] What-If action types and Baseline vs DER metrics ([section 10](#10-baseline-vs-der-and-what-if-analysis)).
+- [ ] Which CSV validation rules `csv_service.py` enforces; headers and units are already confirmed from the sample files ([section 14](#14-input-data)).
+- [ ] Weather failure or demo-mode behaviour ([section 14](#14-input-data)).
+- [ ] Real API routes and schemas ([section 18](#18-api-reference)).
+- [ ] Python and Node versions, CORS, history persistence ([sections 16, 17, 22](#16-technology-stack-and-repository-structure)).
+- [ ] Whether Network Builder, State Estimation, Short-Circuit, SCADA-style view, Dataset Creator and any IEEE 33-bus benchmark exist ([section 2](#2-capabilities-and-status)).
+- [ ] Existing screenshots ([section 20](#20-screenshots)) and a `LICENSE` file.
+- [ ] Regenerate the five analytics figures from real simulation history, and confirm the interaction behaviours listed in [section 12](#opening-the-interactive-dashboard).
